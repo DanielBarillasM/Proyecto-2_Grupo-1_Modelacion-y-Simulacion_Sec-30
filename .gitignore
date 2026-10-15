@@ -218,3 +218,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Project-specific generated files
+data/raw/*
+!data/raw/.gitkeep
+evidence/results/*.csv
+evidence/results/*.json
+*.aux
+*.out
+*.toc
+*.synctex.gz
