@@ -79,8 +79,10 @@ específico.
 ## Documentación disponible
 
 - [Definición del problema](docs/01_problem_definition.md)
+- [Investigación técnica](docs/02_technical_research.md)
 - [Trazabilidad de la rúbrica](docs/rubric_traceability.md)
 - [Registro de contribuciones](docs/contributions.md)
+- [Uso de inteligencia artificial](docs/ai_usage.md)
 
 ## Integrantes
 
@@ -97,7 +99,8 @@ específico.
 - National Center for Health Statistics. *NHAMCS 2022 Emergency Department
   Summary Tables*.
 
-La bibliografía técnica completa se incorpora en la Parte 2.
+La bibliografía técnica completa se encuentra en
+[`report/references.bib`](report/references.bib).
 
 ## Licencia
 

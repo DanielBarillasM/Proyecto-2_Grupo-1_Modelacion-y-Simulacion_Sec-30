@@ -11,7 +11,11 @@ repositorio. Se actualizará en cada parte y antes de la entrega.
 | 1 | Métrica principal con unidades y sentido | Sección 6 | Completo |
 | 1 | Alcance, restricciones y supuestos | Secciones 7 a 10 | Completo |
 | 1 | Fuente verificable | Sección 11 | Completo |
-| 2 | Técnica adicional y fundamentos | Pendiente de la Parte 2 | Pendiente |
+| 2 | Objetivo, representación y procedimiento | `docs/02_technical_research.md`, secciones 4.1 a 4.9 | Completo |
+| 2 | Tres o más fuentes técnicas | Sección 9 y `report/references.bib` | Completo |
+| 2 | Justificación frente a alternativas | Sección 5 | Completo |
+| 2 | Limitaciones y condiciones de fallo | Sección 8 | Completo |
+| 2 | División biblioteca/equipo | Sección 7 | Completo |
 | 3 | Modelo, ecuaciones y simulación | Pendiente de la Parte 3 | Pendiente |
 | 4 | Mejora, objetivo y restricciones | Pendiente de la Parte 4 | Pendiente |
 | 5 | Diseño experimental y validación | Etapa posterior | Pendiente |
@@ -26,3 +30,13 @@ repositorio. Se actualizará en cada parte y antes de la entrega.
 - [x] Se diferencian alcance y exclusiones.
 - [x] Los supuestos y restricciones están declarados.
 - [x] Existe una fuente pública identificable.
+
+## Criterios de aceptación de la Parte 2
+
+- [x] La técnica adicional tiene objetivo y representación definidos.
+- [x] Se describen selección, cruce, mutación, reemplazo y terminación.
+- [x] Se justifican las restricciones y el control de ruido.
+- [x] La elección se compara con alternativas razonables.
+- [x] Se documentan al menos dos limitaciones.
+- [x] Existen tres o más fuentes técnicas identificables.
+- [x] Se diferencia el trabajo de las bibliotecas y el trabajo del equipo.
