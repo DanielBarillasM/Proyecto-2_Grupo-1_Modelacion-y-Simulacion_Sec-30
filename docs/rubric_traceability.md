@@ -16,7 +16,12 @@ repositorio. Se actualizará en cada parte y antes de la entrega.
 | 2 | Justificación frente a alternativas | Sección 5 | Completo |
 | 2 | Limitaciones y condiciones de fallo | Sección 8 | Completo |
 | 2 | División biblioteca/equipo | Sección 7 | Completo |
-| 3 | Modelo, ecuaciones y simulación | Pendiente de la Parte 3 | Pendiente |
+| 3 | Diagrama y relación de componentes | `docs/03_model_and_simulation.md`, sección 1 | Completo |
+| 3 | Variables, parámetros, unidades y fuentes | Secciones 2 a 5 y `config.py` | Completo |
+| 3 | Reglas, fórmulas y pseudocódigo | Secciones 3 a 8 | Completo |
+| 3 | Simulación funcional y parametrizable | `src/ed_simulation/` y `app.py` | Completo |
+| 3 | Separación de responsabilidades | Sección 9 y estructura de paquetes | Completo |
+| 3 | Reproducción desde entorno limpio | README y sección 10 | Completo |
 | 4 | Mejora, objetivo y restricciones | Pendiente de la Parte 4 | Pendiente |
 | 5 | Diseño experimental y validación | Etapa posterior | Pendiente |
 | 6 | Comparación con escenario real | Etapa posterior | Pendiente |
@@ -40,3 +45,14 @@ repositorio. Se actualizará en cada parte y antes de la entrega.
 - [x] Se documentan al menos dos limitaciones.
 - [x] Existen tres o más fuentes técnicas identificables.
 - [x] Se diferencia el trabajo de las bibliotecas y el trabajo del equipo.
+
+## Criterios de aceptación de la Parte 3
+
+- [x] El sistema tiene diagrama y flujo documentado.
+- [x] Variables importantes incluyen unidad y procedencia.
+- [x] Las distribuciones y reglas tienen ecuaciones o pseudocódigo.
+- [x] La simulación acepta parámetros y una semilla explícita.
+- [x] Modelo, interfaz y CLI están separados.
+- [x] La ejecución reporta pacientes censurados en lugar de ocultarlos.
+- [x] Existen pruebas de consistencia y reproducibilidad.
+- [x] El README permite reproducir la instalación y ejecución.

@@ -80,9 +80,57 @@ específico.
 
 - [Definición del problema](docs/01_problem_definition.md)
 - [Investigación técnica](docs/02_technical_research.md)
+- [Modelo y simulación](docs/03_model_and_simulation.md)
 - [Trazabilidad de la rúbrica](docs/rubric_traceability.md)
 - [Registro de contribuciones](docs/contributions.md)
 - [Uso de inteligencia artificial](docs/ai_usage.md)
+
+## Instalación
+
+Desde PowerShell, en la raíz del repositorio:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
+```
+
+La instalación editable incluye las dependencias declaradas en `pyproject.toml`.
+También se mantiene `requirements.txt` para herramientas que esperan ese formato:
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+## Ejecución
+
+Aplicación interactiva:
+
+```powershell
+streamlit run app.py
+```
+
+Simulación reproducible por consola:
+
+```powershell
+python -m ed_simulation.cli --seed 2026 --summary-only
+```
+
+Guardar una ejecución completa:
+
+```powershell
+python -m ed_simulation.cli --seed 2026 --output evidence/results/base_seed_2026.json
+```
+
+## Pruebas
+
+```powershell
+pytest
+```
+
+Las pruebas verifican configuración, reproducibilidad, conservación de pacientes,
+ausencia de esperas negativas y el caso sin llegadas.
 
 ## Integrantes
 
