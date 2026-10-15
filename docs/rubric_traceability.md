@@ -22,7 +22,11 @@ repositorio. Se actualizará en cada parte y antes de la entrega.
 | 3 | Simulación funcional y parametrizable | `src/ed_simulation/` y `app.py` | Completo |
 | 3 | Separación de responsabilidades | Sección 9 y estructura de paquetes | Completo |
 | 3 | Reproducción desde entorno limpio | README y sección 10 | Completo |
-| 4 | Mejora, objetivo y restricciones | Pendiente de la Parte 4 | Pendiente |
+| 4 | Función objetivo y restricciones | `docs/04_improvement_implementation.md`, secciones 2 y 3 | Completo |
+| 4 | Integración con la simulación | Sección 1 y `optimization/genetic_algorithm.py` | Completo |
+| 4 | Parámetros y justificación | Sección 5 y `GAConfig` | Completo |
+| 4 | Candidato y factibilidad por código | Secciones 7 y 8, pruebas y `evidence/part4_candidate.json` | Completo |
+| 4 | Alternativa base conservada | `OptimizationResult.baseline` y elitismo | Completo |
 | 5 | Diseño experimental y validación | Etapa posterior | Pendiente |
 | 6 | Comparación con escenario real | Etapa posterior | Pendiente |
 | 7 | Resultados y conclusiones | Etapa posterior | Pendiente |
@@ -56,3 +60,14 @@ repositorio. Se actualizará en cada parte y antes de la entrega.
 - [x] La ejecución reporta pacientes censurados en lugar de ocultarlos.
 - [x] Existen pruebas de consistencia y reproducibilidad.
 - [x] El README permite reproducir la instalación y ejecución.
+
+## Criterios de aceptación de la Parte 4
+
+- [x] La función objetivo está expresada formalmente.
+- [x] Presupuesto, límites, integralidad y transiciones se validan por código.
+- [x] La técnica adicional utiliza el simulador como función de evaluación.
+- [x] Los parámetros del método son visibles y configurables.
+- [x] La asignación base siempre forma parte de la población.
+- [x] La solución final se rechaza si no es factible.
+- [x] Se guardan historial, semillas, restricciones y métricas.
+- [x] Streamlit y CLI ejecutan la optimización.

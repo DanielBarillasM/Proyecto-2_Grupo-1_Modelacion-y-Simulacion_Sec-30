@@ -23,6 +23,11 @@ import streamlit as st
 from plotly.subplots import make_subplots
 
 from ed_simulation import default_config, simulate
+from ed_simulation.optimization import (
+    GAConfig,
+    OptimizationConstraints,
+    optimize_staffing,
+)
 
 
 BLOCK_LABELS = (
@@ -51,7 +56,7 @@ def main() -> None:
         st.caption("Simulación y asignación de recursos")
         page = st.radio(
             "Sección",
-            ("Problema", "Modelo", "Simulación"),
+            ("Problema", "Modelo", "Simulación", "Optimización"),
             label_visibility="collapsed",
         )
         st.divider()
@@ -64,8 +69,10 @@ def main() -> None:
         _problem_page()
     elif page == "Modelo":
         _model_page()
-    else:
+    elif page == "Simulación":
         _simulation_page()
+    else:
+        _optimization_page()
 
 
 def _problem_page() -> None:
@@ -304,6 +311,289 @@ def _render_result(result) -> None:
         st.caption("La tabla muestra como máximo los primeros 200 pacientes medidos.")
 
 
+def _optimization_page() -> None:
+    """Configure and execute the constrained genetic algorithm on demand."""
+
+    st.markdown('<p class="section-mark">Proyecto 2 · Parte 4</p>', unsafe_allow_html=True)
+    st.title("Redistribuir sin aumentar recursos")
+    st.write(
+        "El algoritmo genético modifica la asignación por bloque, pero conserva "
+        "el total diario. Todos los candidatos usan las mismas semillas para que "
+        "la comparación no dependa de una demanda favorable."
+    )
+
+    with st.expander("Escenario y restricciones", expanded=True):
+        baseline_columns = st.columns(6)
+        default_capacity = (3, 3, 4, 4, 5, 4)
+        baseline: list[int] = []
+        for index, column in enumerate(baseline_columns):
+            with column:
+                baseline.append(
+                    int(
+                        st.number_input(
+                            BLOCK_LABELS[index],
+                            min_value=1,
+                            max_value=10,
+                            value=default_capacity[index],
+                            step=1,
+                            key=f"opt_capacity_{index}",
+                        )
+                    )
+                )
+        constraint_columns = st.columns(3)
+        with constraint_columns[0]:
+            min_capacity = int(
+                st.number_input("Mínimo por bloque", 1, 5, 1, key="opt_min")
+            )
+        with constraint_columns[1]:
+            max_capacity = int(
+                st.number_input("Máximo por bloque", 2, 10, 8, key="opt_max")
+            )
+        with constraint_columns[2]:
+            max_step = int(
+                st.number_input("Cambio máximo consecutivo", 0, 8, 3, key="opt_step")
+            )
+        st.caption(
+            f"Presupuesto fijo: {sum(baseline)} unidades de bloque, equivalentes "
+            f"a {sum(baseline) * 4} horas-equipo por día."
+        )
+
+    with st.expander("Parámetros del algoritmo"):
+        algorithm_columns = st.columns(4)
+        with algorithm_columns[0]:
+            population = int(
+                st.number_input("Población", 8, 60, 16, step=4, key="ga_population")
+            )
+        with algorithm_columns[1]:
+            generations = int(
+                st.number_input("Generaciones", 2, 60, 10, key="ga_generations")
+            )
+        with algorithm_columns[2]:
+            replicates = int(
+                st.number_input("Réplicas por candidato", 1, 10, 2, key="ga_replicates")
+            )
+        with algorithm_columns[3]:
+            algorithm_seed = int(
+                st.number_input(
+                    "Semilla del algoritmo",
+                    0,
+                    2_147_483_647,
+                    9101,
+                    key="ga_seed",
+                )
+            )
+
+    st.markdown(
+        """
+        <div class="method-note">
+          <strong>Objetivo de búsqueda</strong>
+          <span>70 % espera media + 30 % percentil 90 + penalización por pacientes sin iniciar atención.</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    if st.button("Buscar asignación mejorada", type="primary", use_container_width=True):
+        try:
+            base_config = default_config(capacity_schedule=tuple(baseline))
+            constraints = OptimizationConstraints(
+                blocks=6,
+                total_capacity_units=sum(baseline),
+                min_capacity=min_capacity,
+                max_capacity=max_capacity,
+                max_step_change=max_step,
+            )
+            ga_config = GAConfig(
+                population_size=population,
+                generations=generations,
+                elitism=min(2, population - 1),
+                tournament_size=min(3, population),
+                patience=max(2, min(8, generations)),
+                evaluation_replicates=replicates,
+                algorithm_seed=algorithm_seed,
+            )
+            with st.spinner("Evaluando asignaciones con simulaciones comunes..."):
+                st.session_state["optimization_result"] = optimize_staffing(
+                    base_config,
+                    constraints,
+                    ga_config,
+                )
+        except ValueError as error:
+            st.error(f"No se puede iniciar la búsqueda: {error}")
+
+    optimization = st.session_state.get("optimization_result")
+    if optimization is None:
+        st.markdown(
+            """
+            <div class="empty-state">
+              <strong>Aún no hay una búsqueda.</strong>
+              <span>Revisa las restricciones y selecciona “Buscar asignación mejorada”.</span>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        return
+
+    _render_optimization(optimization)
+
+
+def _render_optimization(result) -> None:
+    """Show feasibility, comparison, and convergence without overstating results."""
+
+    baseline = result.baseline
+    best = result.best
+    if best.feasible:
+        st.success(
+            "La asignación candidata satisface presupuesto, límites y cambios "
+            "máximos entre bloques."
+        )
+    else:
+        st.error("La solución candidata no es factible y no debe utilizarse.")
+
+    metric_columns = st.columns(4)
+    metric_columns[0].metric(
+        "Objetivo base",
+        f"{baseline.objective:.1f} min",
+    )
+    metric_columns[1].metric(
+        "Objetivo candidato",
+        f"{best.objective:.1f} min",
+        delta=f"{-result.absolute_improvement_minutes:.1f} min",
+        delta_color="inverse",
+    )
+    metric_columns[2].metric(
+        "Mejora simulada",
+        f"{100 * result.relative_improvement:.1f} %",
+    )
+    metric_columns[3].metric(
+        "Asignaciones evaluadas",
+        str(result.evaluated_schedules),
+    )
+
+    comparison, convergence = st.columns((1.1, 1), gap="large")
+    with comparison:
+        st.plotly_chart(
+            _schedule_comparison_figure(result),
+            use_container_width=True,
+            config={"displaylogo": False},
+        )
+    with convergence:
+        st.plotly_chart(
+            _convergence_figure(result),
+            use_container_width=True,
+            config={"displaylogo": False},
+        )
+
+    table = pd.DataFrame(
+        {
+            "Indicador": (
+                "Asignación",
+                "Espera media (min)",
+                "Percentil 90 (min)",
+                "Proporción censurada",
+                "Cola media",
+                "Utilización",
+            ),
+            "Base": (
+                str(list(baseline.schedule)),
+                baseline.mean_wait_minutes,
+                baseline.p90_wait_minutes,
+                baseline.censored_share,
+                baseline.mean_queue,
+                baseline.resource_utilization,
+            ),
+            "Candidata": (
+                str(list(best.schedule)),
+                best.mean_wait_minutes,
+                best.p90_wait_minutes,
+                best.censored_share,
+                best.mean_queue,
+                best.resource_utilization,
+            ),
+        }
+    )
+    st.dataframe(table, hide_index=True, use_container_width=True)
+    st.warning(
+        "Esta es una mejora simulada con parámetros estimados. No demuestra una "
+        "mejora observada en un hospital real; esa afirmación requiere las Partes 5 y 6."
+    )
+
+
+def _schedule_comparison_figure(result) -> go.Figure:
+    """Compare integer allocations block by block."""
+
+    figure = go.Figure()
+    figure.add_trace(
+        go.Bar(
+            x=BLOCK_LABELS,
+            y=result.baseline.schedule,
+            name="Base",
+            marker_color="#6B8E86",
+        )
+    )
+    figure.add_trace(
+        go.Bar(
+            x=BLOCK_LABELS,
+            y=result.best.schedule,
+            name="Candidata",
+            marker_color="#C94F4F",
+        )
+    )
+    figure.update_layout(
+        title="Asignación por bloque",
+        barmode="group",
+        xaxis_title="Horario",
+        yaxis_title="Equipos",
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="#F7FBFC",
+        margin={"l": 10, "r": 10, "t": 55, "b": 10},
+        legend={"orientation": "h", "y": -0.28},
+    )
+    figure.update_yaxes(dtick=1, gridcolor="#D9E8EA")
+    return figure
+
+
+def _convergence_figure(result) -> go.Figure:
+    """Expose the optimization history instead of showing only the winner."""
+
+    frame = pd.DataFrame(
+        {
+            "generation": [record.generation for record in result.history],
+            "best": [record.best_objective for record in result.history],
+            "mean": [record.population_mean_objective for record in result.history],
+        }
+    )
+    figure = go.Figure()
+    figure.add_trace(
+        go.Scatter(
+            x=frame["generation"],
+            y=frame["mean"],
+            name="Media de población",
+            line={"color": "#91B7BC", "width": 2},
+        )
+    )
+    figure.add_trace(
+        go.Scatter(
+            x=frame["generation"],
+            y=frame["best"],
+            name="Mejor factible",
+            line={"color": "#0B3C49", "width": 3},
+        )
+    )
+    figure.update_layout(
+        title="Convergencia de la búsqueda",
+        xaxis_title="Generación",
+        yaxis_title="Objetivo (min)",
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="#F7FBFC",
+        margin={"l": 10, "r": 10, "t": 55, "b": 10},
+        legend={"orientation": "h", "y": -0.28},
+    )
+    figure.update_xaxes(dtick=1, gridcolor="#D9E8EA")
+    figure.update_yaxes(gridcolor="#D9E8EA")
+    return figure
+
+
 def _timeline_figure(result) -> go.Figure:
     """Compare realized arrivals with scheduled capacity through the day."""
 
@@ -440,6 +730,14 @@ def _apply_styles() -> None:
         }
         .empty-state strong, .empty-state span { display: block; }
         .empty-state span { margin-top: 0.35rem; }
+        .method-note {
+          border-left: 4px solid var(--alert);
+          background: white;
+          padding: 1rem 1.2rem;
+          margin: 1rem 0;
+        }
+        .method-note strong, .method-note span { display: block; }
+        .method-note span { color: #49666D; margin-top: 0.3rem; }
         .stButton > button[kind="primary"] {
           background: var(--petrol);
           border-color: var(--petrol);

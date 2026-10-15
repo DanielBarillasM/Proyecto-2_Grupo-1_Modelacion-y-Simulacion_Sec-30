@@ -1,0 +1,142 @@
+{
+  "evidence_status": "development_candidate_with_estimated_parameters",
+  "claim_scope": "simulated improvement only; not observed real-world improvement",
+  "baseline": {
+    "schedule": [
+      3,
+      3,
+      4,
+      4,
+      5,
+      4
+    ],
+    "objective": 149.154131,
+    "mean_wait_minutes": 91.027767,
+    "p90_wait_minutes": 224.778967,
+    "censored_share": 0.15000837,
+    "mean_queue": 5.958733,
+    "resource_utilization": 0.93079367,
+    "feasible": true,
+    "violations": {
+      "length": 0,
+      "bounds": 0,
+      "budget": 0,
+      "smoothness": 0
+    },
+    "replicate_seeds": [
+      20260,
+      20261,
+      20262
+    ]
+  },
+  "best": {
+    "schedule": [
+      1,
+      2,
+      5,
+      5,
+      6,
+      4
+    ],
+    "objective": 75.742296,
+    "mean_wait_minutes": 48.9517,
+    "p90_wait_minutes": 119.3981,
+    "censored_share": 0.04713897,
+    "mean_queue": 2.813933,
+    "resource_utilization": 0.91532333,
+    "feasible": true,
+    "violations": {
+      "length": 0,
+      "bounds": 0,
+      "budget": 0,
+      "smoothness": 0
+    },
+    "replicate_seeds": [
+      20260,
+      20261,
+      20262
+    ]
+  },
+  "absolute_improvement_minutes": 73.411835,
+  "relative_improvement": 0.49218774,
+  "history": [
+    {
+      "generation": 0,
+      "best_objective": 75.742296,
+      "population_mean_objective": 152.059347,
+      "unique_schedules": 24
+    },
+    {
+      "generation": 1,
+      "best_objective": 75.742296,
+      "population_mean_objective": 120.390922,
+      "unique_schedules": 20
+    },
+    {
+      "generation": 2,
+      "best_objective": 75.742296,
+      "population_mean_objective": 105.111231,
+      "unique_schedules": 16
+    },
+    {
+      "generation": 3,
+      "best_objective": 75.742296,
+      "population_mean_objective": 92.016827,
+      "unique_schedules": 13
+    },
+    {
+      "generation": 4,
+      "best_objective": 75.742296,
+      "population_mean_objective": 80.380193,
+      "unique_schedules": 7
+    },
+    {
+      "generation": 5,
+      "best_objective": 75.742296,
+      "population_mean_objective": 79.255925,
+      "unique_schedules": 6
+    },
+    {
+      "generation": 6,
+      "best_objective": 75.742296,
+      "population_mean_objective": 78.330618,
+      "unique_schedules": 6
+    },
+    {
+      "generation": 7,
+      "best_objective": 75.742296,
+      "population_mean_objective": 76.560804,
+      "unique_schedules": 5
+    },
+    {
+      "generation": 8,
+      "best_objective": 75.742296,
+      "population_mean_objective": 80.978986,
+      "unique_schedules": 7
+    }
+  ],
+  "constraints": {
+    "blocks": 6,
+    "total_capacity_units": 23,
+    "min_capacity": 1,
+    "max_capacity": 8,
+    "max_step_change": 3
+  },
+  "ga_config": {
+    "population_size": 24,
+    "generations": 20,
+    "crossover_probability": 0.8,
+    "mutation_probability": 0.25,
+    "elitism": 2,
+    "tournament_size": 3,
+    "patience": 8,
+    "evaluation_replicates": 3,
+    "evaluation_seed_start": 20260,
+    "algorithm_seed": 9101,
+    "mean_wait_weight": 0.7,
+    "p90_wait_weight": 0.3,
+    "censored_share_penalty_minutes": 120.0
+  },
+  "evaluated_schedules": 62,
+  "stopped_early": true
+}

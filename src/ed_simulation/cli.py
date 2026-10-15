@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Sequence
 
 from .config import default_config
+from .optimization import GAConfig, OptimizationConstraints, optimize_staffing
 from .simulation import simulate
 
 
@@ -43,6 +44,53 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Omite las trazas de pacientes en el JSON guardado.",
     )
+    parser.add_argument(
+        "--optimize",
+        action="store_true",
+        help="Ejecuta el algoritmo genético sobre la capacidad indicada.",
+    )
+    parser.add_argument(
+        "--population",
+        type=int,
+        default=24,
+        help="Tamaño de población cuando se usa --optimize.",
+    )
+    parser.add_argument(
+        "--generations",
+        type=int,
+        default=20,
+        help="Máximo de generaciones cuando se usa --optimize.",
+    )
+    parser.add_argument(
+        "--replicates",
+        type=int,
+        default=3,
+        help="Réplicas por candidato con semillas comunes.",
+    )
+    parser.add_argument(
+        "--algorithm-seed",
+        type=int,
+        default=9101,
+        help="Semilla de selección, cruce y mutación.",
+    )
+    parser.add_argument(
+        "--min-capacity",
+        type=int,
+        default=1,
+        help="Mínimo permitido por bloque.",
+    )
+    parser.add_argument(
+        "--max-capacity",
+        type=int,
+        default=8,
+        help="Máximo permitido por bloque.",
+    )
+    parser.add_argument(
+        "--max-step-change",
+        type=int,
+        default=3,
+        help="Cambio máximo entre bloques consecutivos.",
+    )
     return parser
 
 
@@ -60,18 +108,41 @@ def main(argv: Sequence[str] | None = None) -> int:
         arrival_rates=rates,
         capacity_schedule=tuple(args.capacity),
     )
-    result = simulate(config)
-    summary = json.dumps(result.metrics, ensure_ascii=False, indent=2)
-    print(summary)
+    if args.optimize:
+        constraints = OptimizationConstraints(
+            blocks=len(config.capacity_schedule),
+            total_capacity_units=sum(config.capacity_schedule),
+            min_capacity=args.min_capacity,
+            max_capacity=args.max_capacity,
+            max_step_change=args.max_step_change,
+        )
+        ga_config = GAConfig(
+            population_size=args.population,
+            generations=args.generations,
+            evaluation_replicates=args.replicates,
+            algorithm_seed=args.algorithm_seed,
+        )
+        optimization = optimize_staffing(config, constraints, ga_config)
+        payload = optimization.to_dict()
+        summary_payload = {
+            "baseline_schedule": payload["baseline"]["schedule"],
+            "best_schedule": payload["best"]["schedule"],
+            "baseline_objective": payload["baseline"]["objective"],
+            "best_objective": payload["best"]["objective"],
+            "relative_improvement": payload["relative_improvement"],
+            "feasible": payload["best"]["feasible"],
+            "evaluated_schedules": payload["evaluated_schedules"],
+        }
+        print(json.dumps(summary_payload, ensure_ascii=False, indent=2))
+    else:
+        result = simulate(config)
+        payload = result.to_dict(include_patients=not args.summary_only)
+        print(json.dumps(result.metrics, ensure_ascii=False, indent=2))
 
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(
-            json.dumps(
-                result.to_dict(include_patients=not args.summary_only),
-                ensure_ascii=False,
-                indent=2,
-            ),
+            json.dumps(payload, ensure_ascii=False, indent=2),
             encoding="utf-8",
         )
         print(f"Resultado guardado en: {args.output}")

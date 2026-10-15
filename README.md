@@ -81,6 +81,7 @@ específico.
 - [Definición del problema](docs/01_problem_definition.md)
 - [Investigación técnica](docs/02_technical_research.md)
 - [Modelo y simulación](docs/03_model_and_simulation.md)
+- [Implementación de la mejora](docs/04_improvement_implementation.md)
 - [Trazabilidad de la rúbrica](docs/rubric_traceability.md)
 - [Registro de contribuciones](docs/contributions.md)
 - [Uso de inteligencia artificial](docs/ai_usage.md)
@@ -122,6 +123,15 @@ Guardar una ejecución completa:
 ```powershell
 python -m ed_simulation.cli --seed 2026 --output evidence/results/base_seed_2026.json
 ```
+
+Ejecutar el algoritmo genético:
+
+```powershell
+python -m ed_simulation.cli --optimize --summary-only
+```
+
+La sección **Optimización** de Streamlit permite ejecutar la misma integración,
+visualizar convergencia y comprobar las restricciones del candidato.
 
 ## Pruebas
 

@@ -78,12 +78,14 @@ Cada gen indica los equipos disponibles en un bloque de cuatro horas:
 Para las esperas observadas en una simulación se minimiza:
 
 $$
-J(x)=0.7\,\overline{W}(x)+0.3\,Q_{0.90}(W(x)),
+J(x)=0.7\,\overline{W}(x)+0.3\,Q_{0.90}(W(x))+120\,C(x),
 $$
 
-donde ambos términos se expresan en minutos. La media representa desempeño
-general y el percentil 90 penaliza esperas extremas. Los pesos serán objeto de
-análisis de sensibilidad en la Parte 5.
+donde los dos primeros términos se expresan en minutos y \(C(x)\) es la proporción
+de pacientes medidos que no inició atención al terminar el horizonte. La
+penalización de 120 minutos evita premiar artificialmente una solución que deje
+pacientes censurados. Los pesos y la penalización serán objeto de sensibilidad en
+la Parte 5.
 
 ### 4.3 Restricciones
 
@@ -145,9 +147,10 @@ El algoritmo termina al cumplirse la primera condición:
 - no mejorar durante un número configurable de generaciones;
 - alcanzar un objetivo de espera definido por el usuario.
 
-Los valores iniciales previstos son 36 individuos, 40 generaciones, probabilidad
-de cruce 0.80, probabilidad de mutación 0.25, dos élites y paciencia de diez
-generaciones. Son parámetros configurables, no constantes ocultas.
+Los valores predeterminados son 24 individuos, 20 generaciones, tres réplicas por
+candidato, probabilidad de cruce 0.80, probabilidad de mutación 0.25, dos élites y
+paciencia de ocho generaciones. Son parámetros configurables, no constantes
+ocultas.
 
 ## 5. Comparación con alternativas
 
