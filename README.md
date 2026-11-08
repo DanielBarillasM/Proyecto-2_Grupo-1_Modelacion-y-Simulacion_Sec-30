@@ -82,6 +82,7 @@ específico.
 - [Investigación técnica](docs/02_technical_research.md)
 - [Modelo y simulación](docs/03_model_and_simulation.md)
 - [Implementación de la mejora](docs/04_improvement_implementation.md)
+- [Datos y calibración NHAMCS 2022](docs/05_data_calibration.md)
 - [Trazabilidad de la rúbrica](docs/rubric_traceability.md)
 - [Registro de contribuciones](docs/contributions.md)
 - [Uso de inteligencia artificial](docs/ai_usage.md)
@@ -103,6 +104,19 @@ También se mantiene `requirements.txt` para herramientas que esperan ese format
 ```powershell
 python -m pip install -r requirements.txt
 ```
+
+## Datos NHAMCS 2022
+
+Los agregados calibrados ya están versionados en `data/processed/`. Para
+regenerarlos desde los archivos oficiales de CDC (no versionados):
+
+```powershell
+python scripts/download_nhamcs.py
+python scripts/prepare_nhamcs.py
+```
+
+Detalles, decisiones y limitaciones en
+[docs/05_data_calibration.md](docs/05_data_calibration.md).
 
 ## Ejecución
 

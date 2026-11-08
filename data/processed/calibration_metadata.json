@@ -1,0 +1,157 @@
+{
+  "dataset": "NHAMCS 2022 Emergency Department Public Use File",
+  "publisher": "National Center for Health Statistics, CDC",
+  "documentation_url": "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/dataset_documentation/NHAMCS/doc22-ed-508.pdf",
+  "survey_period": "Calendar year 2022; each sampled hospital reports visits during a randomly assigned 4-week reporting period",
+  "population": "Visits to emergency departments of noninstitutional general and short-stay hospitals, excluding Federal, military and VA hospitals, in the 50 US states and DC",
+  "source_files": [
+    {
+      "filename": "ed2022.zip",
+      "url": "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NHAMCS/ed2022.zip",
+      "accessed": "2026-11-08",
+      "size_bytes": 1666841,
+      "sha256": "a513693ed05b98bf94d2ff48b50de85afe48dd63cd7d43fb0930f914b18a9f25"
+    },
+    {
+      "filename": "eddict2022.dct",
+      "url": "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/dataset_documentation/NHAMCS/stata/eddict2022.dct",
+      "accessed": "2026-11-08",
+      "size_bytes": 21447,
+      "sha256": "00f8bf6cf09bfa3f216ee560a68d4309573c6b7ea931fa022a5bbbcae260014f"
+    }
+  ],
+  "validation_checks": {
+    "records": 16025,
+    "expected_records": 16025,
+    "years": [
+      2022
+    ],
+    "total_patwt": 155397746.56713,
+    "expected_total_patwt": 155397747.0,
+    "hospitals": 188,
+    "hospitals_with_edwt": 188
+  },
+  "sample": {
+    "records": 16025,
+    "records_with_valid_arrtime": 15782,
+    "records_with_triage_1_to_5": 10207,
+    "records_with_valid_waittime": 13272,
+    "records_with_service_proxy": 12754,
+    "design_strata": 8,
+    "design_clusters": 122
+  },
+  "special_codes": [
+    {
+      "variable": "ARRTIME",
+      "code": -9,
+      "meaning": "blank",
+      "records": 243
+    },
+    {
+      "variable": "WAITTIME",
+      "code": -9,
+      "meaning": "blank",
+      "records": 2173
+    },
+    {
+      "variable": "WAITTIME",
+      "code": -7,
+      "meaning": "not_applicable_not_seen_by_provider",
+      "records": 580
+    },
+    {
+      "variable": "LOV",
+      "code": -9,
+      "meaning": "blank",
+      "records": 697
+    },
+    {
+      "variable": "IMMEDR",
+      "code": -9,
+      "meaning": "blank",
+      "records": 364
+    },
+    {
+      "variable": "IMMEDR",
+      "code": -8,
+      "meaning": "unknown",
+      "records": 3788
+    },
+    {
+      "variable": "IMMEDR",
+      "code": 0,
+      "meaning": "no_triage_reported_in_esa_that_triages",
+      "records": 587
+    },
+    {
+      "variable": "IMMEDR",
+      "code": 7,
+      "meaning": "esa_does_not_conduct_nursing_triage",
+      "records": 1079
+    },
+    {
+      "variable": "BOARDED",
+      "code": -9,
+      "meaning": "missing",
+      "records": 443
+    },
+    {
+      "variable": "BOARDED",
+      "code": -7,
+      "meaning": "not_applicable",
+      "records": 13909
+    }
+  ],
+  "missing_data_assumption": "Records with special codes are excluded from the estimate that needs that variable (complete-case within variable). This assumes the excluded visits resemble the included ones after weighting; IMMEDR has 27.8 % documented item nonresponse and WAITTIME 14.1 %.",
+  "weighting": "All shares, means and quantiles use PATWT; per-ED volumes use EDWT.",
+  "variance": "Taylor linearization with CSTRATM and CPSUM (with-replacement ultimate clusters; singleton strata centred on the overall mean). 95 % intervals use a normal approximation. Quantiles have no SE.",
+  "reliability_rule": "reliable = at least 30 records and relative standard error <= 30 %. This is a simplified screen, not the complete NCHS 2017 proportion criteria.",
+  "outputs": {
+    "nhamcs_2022_hourly_profile.csv": {
+      "content": "Share of daily visits by arrival hour (ARRTIME)",
+      "unit": "proportion; sums to 1",
+      "source_category": "derived_from_public"
+    },
+    "nhamcs_2022_triage_profile.csv": {
+      "content": "Share of triaged visits by IMMEDR level 1-5",
+      "unit": "proportion; sums to 1",
+      "source_category": "derived_from_public"
+    },
+    "nhamcs_2022_reference_volume.csv": {
+      "content": "Annual and daily visits per ED (mean and EDWT-weighted quantiles)",
+      "unit": "visits per ED per year / per day",
+      "source_category": "derived_from_public"
+    },
+    "nhamcs_2022_reference_metrics.csv": {
+      "content": "WAITTIME mean, median, p90 and share > 60 min, overall, by triage and by 4-hour arrival block",
+      "unit": "minutes or proportion",
+      "source_category": "derived_from_public",
+      "use": "validation target only; must not be used to fit model parameters"
+    },
+    "nhamcs_2022_service_proxy.csv": {
+      "content": "LOV - WAITTIME - BOARDED by triage (post-contact time)",
+      "unit": "minutes",
+      "source_category": "derived_from_public",
+      "use": "upper-bound reference; not adopted as team occupancy"
+    }
+  },
+  "model_inputs": {
+    "arrival_rates": {
+      "formula": "daily_visits[reference_volume] * hourly_share[h]",
+      "reference_volume": "median_ed",
+      "source_category": "derived_from_public",
+      "choice_of_reference_volume": "estimated_assumption"
+    },
+    "triage_probabilities": {
+      "source_category": "derived_from_public"
+    },
+    "service_medians_minutes": {
+      "source_category": "estimated_assumption",
+      "reason": "LOV includes tests, results, internal waits and boarding; it does not measure the time a single team is occupied."
+    },
+    "capacity_schedule": {
+      "source_category": "estimated_assumption"
+    }
+  },
+  "scope_limitation": "NHAMCS is a national US reference. It does not describe a specific Guatemalan hospital and cannot show that an intervention was applied or improved real outcomes."
+}

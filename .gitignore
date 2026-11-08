@@ -228,3 +228,6 @@ evidence/results/*.json
 *.out
 *.toc
 *.synctex.gz
+
+# memsearch (local memory index)
+.memsearch/

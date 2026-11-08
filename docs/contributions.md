@@ -7,7 +7,7 @@ contribución completada.
 | Integrante | Responsabilidades planificadas | Evidencia completada |
 |---|---|---|
 | Pablo Daniel Barillas Moreno | Coordinación, integración y reproducibilidad | Por registrar |
-| Jorge Palacios | Investigación técnica y formulación matemática | Por registrar |
+| Jorge Palacios | Investigación técnica y formulación matemática; datos y calibración NHAMCS | Pipeline reproducible de NHAMCS 2022: `scripts/download_nhamcs.py`, `scripts/prepare_nhamcs.py`, `src/ed_simulation/calibration.py`, `tests/test_calibration.py`, `data/processed/nhamcs_2022_*`, `data/processed/calibration_metadata.json`, `docs/05_data_calibration.md`, `data/README.md` y entradas NHAMCS de `report/references.bib` |
 | Adrián Ricardo González Muralles | Simulación, verificación y pruebas | Por registrar |
 | Andrés Rafael Chivalán | Optimización y experimentación | Por registrar |
 | Javier Andrés Chen | Interfaz, visualización y documentación | Por registrar |

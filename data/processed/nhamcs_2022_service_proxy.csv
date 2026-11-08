@@ -1,0 +1,6 @@
+triage_level,label,unit,n_unweighted,p25_minutes,median_minutes,p75_minutes,p90_minutes,lognormal_sigma_iqr,reliable,interpretation,source_category
+1,Immediate,minutes,107,100.0,232.0,401.0,972.0,1.0295,True,upper_bound_of_team_occupancy,derived_from_public
+2,Emergent,minutes,1289,142.0,225.0,369.0,676.0,0.7079,True,upper_bound_of_team_occupancy,derived_from_public
+3,Urgent,minutes,4371,112.0,178.0,276.0,415.0,0.6686,True,upper_bound_of_team_occupancy,derived_from_public
+4,Semi-urgent,minutes,2311,49.0,90.0,152.0,250.0,0.8392,True,upper_bound_of_team_occupancy,derived_from_public
+5,Nonurgent,minutes,250,38.0,69.0,130.0,277.0,0.9117,True,upper_bound_of_team_occupancy,derived_from_public

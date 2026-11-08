@@ -27,7 +27,12 @@ repositorio. Se actualizará en cada parte y antes de la entrega.
 | 4 | Parámetros y justificación | Sección 5 y `GAConfig` | Completo |
 | 4 | Candidato y factibilidad por código | Secciones 7 y 8, pruebas y `evidence/part4_candidate.json` | Completo |
 | 4 | Alternativa base conservada | `OptimizationResult.baseline` y elitismo | Completo |
+| 3 | Procedencia y unidades de parámetros calibrados | `docs/05_data_calibration.md`, secciones 7 a 9; columnas `unit` y `source_category` | Completo |
+| 5 | Fuente real verificable: fecha, periodo, muestra y condiciones | `docs/05_data_calibration.md`, sección 2; `data/processed/calibration_metadata.json` | Completo |
+| 5 | Obtención y transformación reproducibles | `scripts/download_nhamcs.py`, `scripts/prepare_nhamcs.py`, `tests/test_calibration.py` | Completo |
+| 5 | Parámetros calibrados con datos públicos | `src/ed_simulation/calibration.py` (`load_calibrated_config`), `data/processed/nhamcs_2022_*` | Completo para llegadas y triaje; servicio sigue como supuesto |
 | 5 | Diseño experimental y validación | Etapa posterior | Pendiente |
+| 6 | Métrica real de referencia con incertidumbre | `data/processed/nhamcs_2022_reference_metrics.csv` | Referencia lista; comparación pendiente |
 | 6 | Comparación con escenario real | Etapa posterior | Pendiente |
 | 7 | Resultados y conclusiones | Etapa posterior | Pendiente |
 
@@ -71,3 +76,22 @@ repositorio. Se actualizará en cada parte y antes de la entrega.
 - [x] La solución final se rechaza si no es factible.
 - [x] Se guardan historial, semillas, restricciones y métricas.
 - [x] Streamlit y CLI ejecutan la optimización.
+
+## Criterios de aceptación de datos y calibración (NHAMCS 2022)
+
+- [x] El proceso parte de los archivos oficiales y detecta archivos erróneos
+  (SHA-256, longitud de registro, número de registros, año y total de `PATWT`).
+- [x] Los códigos especiales y faltantes se tratan según el libro de códigos
+  oficial; un negativo no documentado detiene el proceso.
+- [x] Las proporciones, medias y cuantiles usan `PATWT`; el volumen por
+  departamento usa `EDWT`; los errores estándar usan `CSTRATM` y `CPSUM`.
+- [x] Cada salida identifica su unidad y su clasificación de procedencia.
+- [x] Las probabilidades horarias y de triaje suman 1 con una tolerancia de
+  `1e-4` en los CSV y de forma exacta tras normalizar en `calibrated_inputs`.
+- [x] La transformación es determinista y está probada (`tests/test_calibration.py`).
+- [x] No se versionan datos crudos, credenciales ni binarios (`data/raw/` ignorado).
+- [x] Se explica por qué la referencia no equivale a un hospital guatemalteco
+  (`docs/05_data_calibration.md`, sección 10).
+- [x] `WAITTIME` queda reservado para validación y no se usa para ajustar.
+- [ ] Tiempo de servicio calibrado con una fuente identificable: sigue como
+  `estimated_assumption` (sección 8.4).

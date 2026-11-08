@@ -1,0 +1,6 @@
+triage_level,label,unit,n_unweighted,weighted_visits,share,share_se,share_ci95_low,share_ci95_high,reliable,source_category
+1,Immediate,share_of_triaged_visits,139,1521344.5,0.014985,0.003878,0.007384,0.022586,True,derived_from_public
+2,Emergent,share_of_triaged_visits,1595,15653819.55,0.15419,0.009474,0.135622,0.172758,True,derived_from_public
+3,Urgent,share_of_triaged_visits,5340,51507822.05,0.507351,0.016108,0.475779,0.538922,True,derived_from_public
+4,Semi-urgent,share_of_triaged_visits,2826,30093901.35,0.296424,0.019726,0.257762,0.335086,True,derived_from_public
+5,Nonurgent,share_of_triaged_visits,307,2746217.86,0.02705,0.003314,0.020554,0.033546,True,derived_from_public
