@@ -1,0 +1,63 @@
+\section{Implementación del simulador y de la mejora}
+
+\subsection{Organización del código}
+El paquete \texttt{ed\_simulation} separa responsabilidades: \texttt{config.py}
+(parámetros y validación temprana), \texttt{simulation.py} (procesos y métricas),
+\texttt{calibration.py} (datos NHAMCS), \texttt{optimization/} (GA y restricciones),
+\texttt{experiments.py}, \texttt{validation.py} y \texttt{evidence.py} (diseño
+experimental, comparación con la referencia y figuras), \texttt{cli.py} (ejecución
+reproducible) y \texttt{ui/} junto con \texttt{app.py} (interfaz Streamlit). La interfaz y
+la CLI usan las mismas funciones públicas del simulador y del optimizador.
+
+\subsection{Integración del algoritmo genético con la simulación}
+El optimizador no modifica la simulación: para cada horario crea una configuración nueva
+y la evalúa con el mismo modelo que usan la CLI y la interfaz. Todos los candidatos de una
+búsqueda se evalúan con el mismo conjunto de semillas (números aleatorios comunes), lo que
+reduce el ruido al compararlos.
+
+\begin{itemize}
+  \item \textbf{Inicialización:} la población incluye el horario base y recorridos
+  aleatorios por vecinos factibles (transferir una unidad de un bloque a otro).
+  \item \textbf{Selección:} torneo de tres con la regla de factibilidad de Deb.
+  \item \textbf{Cruce y reparación:} cruce uniforme seguido de reparación determinista que
+  limita valores, recupera el presupuesto y reduce violaciones de transición.
+  \item \textbf{Mutación:} transferencia de una unidad entre dos bloques, aceptando solo
+  vecinos factibles.
+  \item \textbf{Elitismo y terminación:} dos élites pasan intactas; se detiene por máximo de
+  generaciones o por falta de mejora durante la paciencia configurada.
+\end{itemize}
+Antes de devolver una solución se vuelve a comprobar que sea factible; de lo contrario el
+programa falla en lugar de aceptarla.
+
+\begin{table}[ht]
+\centering\small
+\caption{Configuración del algoritmo genético y de la búsqueda que congeló la candidata.}
+\label{tab:ga}
+\input{generated/tab_ga.tex}
+\end{table}
+
+\subsection{Candidata obtenida}
+La búsqueda usó diez réplicas por candidato con semillas \OptSeedFirst--\OptSeedLast{} y
+semilla del algoritmo \AlgSeed. Evaluó \OptEvaluated{} horarios distintos y se detuvo
+tras \OptGenerations{} generaciones por falta de mejora. El resultado se escribe en
+\texttt{evidence/final/frozen\_candidate.json} \emph{antes} de la evaluación final.
+
+\begin{table}[ht]
+\centering\small
+\caption{Horarios comparados (equipos por bloque de cuatro horas). Ambos suman 23
+unidades (92 horas-equipo diarias) y cumplen todas las restricciones.}
+\label{tab:horarios}
+\input{generated/tab_schedules.tex}
+\end{table}
+
+En el conjunto de optimización, el objetivo pasó de \OptObjBase{} a \OptObjCand{}
+(\OptRelPct\,\% menos) y la espera media de \OptBaseWait{} a \OptCandWait{} min. Esa
+mejora es mayor que la medida después con semillas independientes (sección~\ref{sec:resultados}):
+parte de ella refleja la selección del mejor horario sobre un conjunto de semillas, lo que
+justifica la evaluación independiente.
+
+\subsection{Interpretación del horario}
+La candidata reduce la capacidad en la madrugada (bloques 00--04 y 04--08) y la traslada a
+la mañana, la tarde y el inicio de la noche (08--12, 12--16 y 16--20). Es coherente con
+una demanda mayor durante el día, pero la lectura es descriptiva: el estudio no prueba por
+qué ese vector particular es mejor que otros factibles.

@@ -1,0 +1,54 @@
+\section{Incertidumbre, limitaciones y amenazas a la validez}
+\label{sec:incertidumbre}
+
+\subsection{Incertidumbre cuantificada}
+La incertidumbre que sí se mide es la del muestreo de la simulación: desviaciones estándar
+entre réplicas, intervalos normales del 95\,\% para las medias y para las diferencias
+pareadas, y el número de parejas favorables. Con \NReps{} réplicas los intervalos son
+amplios (por ejemplo, [\RedCILowNom, \RedCIHighNom] min para la reducción nominal). La
+distribución de la espera es sesgada y con colas largas, por lo que el intervalo normal es
+solo una aproximación; no se ejecutaron pruebas de normalidad, \emph{bootstrap} ni pruebas
+de hipótesis.
+
+\subsection{Incertidumbre no cuantificada}
+\begin{itemize}
+  \item \textbf{Parámetros de servicio.} Medianas y $\sigma$ son supuestos; el estudio no
+  propaga su incertidumbre. Es la entrada con más influencia potencial sobre la congestión y
+  la principal amenaza a la validez. El proxy de \texttt{LOV} las acota por arriba, pero no
+  las identifica.
+  \item \textbf{Una sola referencia de volumen.} Solo se usa el DE de volumen mediano; el
+  resultado depende del nivel de utilización. La sensibilidad a la demanda
+  (0.80--1.20) cubre parcialmente esta dependencia.
+  \item \textbf{Sensibilidad no explorada.} No se varió el presupuesto de recursos, los
+  pesos de la función objetivo, la penalización de censura ni la distribución de servicio.
+  \item \textbf{Sin comparador de optimización.} No hay búsqueda aleatoria con el mismo
+  presupuesto de evaluaciones; no se sabe cuánto aporta la estructura del GA, ni si hay
+  horarios factibles mejores que la candidata.
+\end{itemize}
+
+\subsection{Limitaciones del modelo y de la referencia}
+\begin{itemize}
+  \item Recurso único agregado: no modela médicos, enfermería, diagnóstico ni camas por
+  separado, ni preempción, abandono, reingresos o etapas múltiples.
+  \item Tasa constante por hora y un solo día de medición por réplica; no se modelan
+  variaciones por día de la semana, estación o crisis.
+  \item NHAMCS es una muestra nacional de Estados Unidos, con no respuesta alta en
+  \texttt{IMMEDR} y \texttt{WAITTIME}; su perfil agregado mezcla DE de distintos tamaños.
+  \item El volumen por DE se aproxima como $\sum \texttt{PATWT}/\texttt{EDWT}$ con 188 DE.
+  \item Los cuantiles de la referencia no tienen error estándar y el criterio de
+  fiabilidad es una versión simplificada del de NCHS \citep{parker2017standards}.
+\end{itemize}
+
+\subsection{Sobreajuste de la candidata}
+La mejora medida en el conjunto de optimización (\OptRelPct\,\% en el objetivo) es mayor
+que la medida con semillas independientes (\RedPctNom\,\% en la espera media). Es el
+comportamiento esperable cuando se elige el mejor entre varios horarios sobre un mismo
+conjunto de semillas, y es la razón de reportar solo la evaluación independiente.
+
+\subsection{Riesgo de extrapolación}
+Los resultados aplican solo a las distribuciones, volumen, capacidad y horizonte probados.
+No cubren crisis, cambios clínicos, abandono, preempción, etapas múltiples de atención ni un
+hospital particular. En demanda alta el sistema se satura (sección~\ref{sec:resultados}) y la
+cifra de mejora de esa condición debe leerse como indicativa. Para trasladar el análisis a
+un hospital concreto harían falta datos locales de llegadas, triaje, capacidad y tiempo de
+ocupación del equipo, una calibración propia del servicio y una validación externa.

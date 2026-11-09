@@ -1,0 +1,53 @@
+\section{Fuente pública y clasificación de datos}
+
+\subsection{NHAMCS 2022}
+La referencia es el archivo público de visitas a departamentos de emergencias de la
+\emph{National Hospital Ambulatory Medical Care Survey} 2022, publicado por el National
+Center for Health Statistics (NCHS) de los CDC
+\citep{nhamcs2022doc,nhamcs2022data,nhamcs2022dictionary}. El archivo contiene 16\,025
+visitas en 188 departamentos y representa, con pesos muestrales, 155\,397\,747 visitas;
+cada hospital reporta durante un periodo de cuatro semanas asignado al azar dentro de 2022.
+El procedimiento de descarga verifica tamaño y suma de verificación (SHA-256) y consta en
+el repositorio (\texttt{data/README.md}, \texttt{docs/05\_data\_calibration.md}). Los
+resúmenes nacionales oficiales se consultan en \citet{nhamcs2022tables}.
+
+Las variables usadas son:
+\begin{itemize}
+  \item \texttt{ARRTIME}: hora de llegada (perfil horario);
+  \item \texttt{IMMEDR}: urgencia recomendada, niveles 1--5 (probabilidades de triaje);
+  \item \texttt{PATWT} y \texttt{EDWT}: pesos de visita y de departamento (ponderación y
+  volumen por departamento);
+  \item \texttt{WAITTIME}: minutos hasta el primer contacto con médico, APRN o PA
+  (\emph{referencia de validación});
+  \item \texttt{LOV} y \texttt{BOARDED}: duración de la visita y tiempo de \emph{boarding}
+  (solo para acotar el servicio, ver sección~\ref{sec:calibracion}).
+\end{itemize}
+
+El archivo crudo no se versiona: el \emph{readme} oficial restringe su uso a fines
+estadísticos \citep{nhamcs2022readme}. El repositorio publica únicamente agregados.
+
+\subsection{Clasificación de los valores publicados}
+Todo valor que aparece en el informe lleva una de cuatro etiquetas de procedencia
+(tabla~\ref{tab:procedencia}).
+
+\begin{table}[ht]
+\centering\small
+\caption{Categorías de procedencia usadas en el proyecto.}
+\label{tab:procedencia}
+\begin{tabularx}{\linewidth}{@{}l X X@{}}
+\toprule
+Etiqueta & Significado & Ejemplo en este proyecto \\
+\midrule
+\texttt{observed\_public} & Observado en una fuente pública & Registros individuales de NHAMCS (no se publican sin agregar) \\
+\texttt{derived\_from\_public} & Calculado a partir de datos públicos & Perfil horario, probabilidades de triaje, volumen diario, espera de referencia \\
+\texttt{estimated\_assumption} & Supuesto o estimación del equipo & Medianas y $\sigma$ de servicio, presupuesto de 23 unidades, límites del horario \\
+\texttt{synthetic\_simulation} & Generado por el modelo & Llegadas, esperas, colas y utilización simuladas \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{alcance}
+NHAMCS es una referencia pública nacional de Estados Unidos. No representa a un hospital
+guatemalteco específico ni autoriza a afirmar que una intervención se aplicó o produjo una
+mejora real.
+\end{alcance}

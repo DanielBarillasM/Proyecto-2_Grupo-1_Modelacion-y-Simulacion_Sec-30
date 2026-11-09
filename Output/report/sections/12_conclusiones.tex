@@ -1,0 +1,39 @@
+\section{Conclusiones y recomendación}
+
+\textbf{Qué mejoró.} Bajo los supuestos del modelo, redistribuir las mismas 23 unidades de
+capacidad con el horario candidato (1, 2, 5, 5, 6, 4) reduce la espera hasta el inicio de la
+atención respecto del horario base (3, 3, 4, 4, 5, 4).
+
+\textbf{Cuánto.} Con demanda nominal, la espera media simulada baja de \WaitBaseNom{} a
+\WaitCandNom{} min (reducción pareada de \RedNom{} min, \RedPctNom\,\%; IC 95\,\%
+[\RedCILowNom, \RedCIHighNom] min), y también bajan la mediana, el percentil 90, la
+proporción con espera mayor a 60 minutos y la cola.
+
+\textbf{Bajo qué condiciones.} El efecto depende de la carga: con demanda alta la
+reducción absoluta es mayor (\RedHigh{} min), y con demanda baja no se distingue de cero
+(IC 95\,\% [\RedCILowLow, \RedCIHighLow] min). La mejora es consistente solo cuando el
+sistema está lo bastante exigido.
+
+\textbf{Qué tan confiable es la comparación.} La comparación entre horarios es pareada, con
+semillas independientes de las de optimización y \NReps{} réplicas por condición, pero la
+variabilidad entre días es alta. La validación frente a NHAMCS es parcial: el modelo base
+sobreestima la espera observada (MAE de \MaeBase{} min en la base y de \MaeCand{} min en la
+candidata), por lo que las cifras absolutas de espera no deben tomarse como predicciones.
+Con más confianza se puede leer la \emph{dirección} del efecto que su magnitud.
+
+\textbf{Qué limitaciones permanecen.} El servicio es un supuesto; no hay comparador de
+optimización ni sensibilidad a los parámetros del GA y del servicio; el modelo es un recurso
+agregado calibrado con un DE nacional estadounidense, no con un hospital guatemalteco.
+
+\textbf{Recomendación.} Conservar la candidata como escenario de análisis y demostración,
+no como política lista para aplicar. Como pasos siguientes, en orden de prioridad:
+(1)~calibrar el servicio con datos de ocupación del equipo (o al menos propagar la
+incertidumbre del supuesto con un análisis de sensibilidad); (2)~añadir una búsqueda
+aleatoria con el mismo presupuesto para medir el aporte del GA; (3)~ampliar la
+sensibilidad a demanda, presupuesto y pesos del objetivo; (4)~validar con datos locales
+antes de cualquier decisión operativa.
+
+\begin{alcance}
+La conclusión es sobre una \textbf{mejora simulada} bajo supuestos explícitos y una
+referencia pública de Estados Unidos. No demuestra causalidad ni una mejora clínica real.
+\end{alcance}

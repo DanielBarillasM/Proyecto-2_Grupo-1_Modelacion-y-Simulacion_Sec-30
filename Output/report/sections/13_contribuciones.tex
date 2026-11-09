@@ -1,0 +1,40 @@
+\section{Contribuciones, uso de inteligencia artificial y reproducibilidad}
+
+\subsection{Contribuciones}
+La tabla resume lo registrado en \texttt{docs/contributions.md}. Una responsabilidad
+planificada no se cuenta como contribución completada; las celdas pendientes deben
+completarlas los integrantes con archivos y actividades verificables.
+
+\begin{table}[ht]
+\centering\small
+\caption{Registro de contribuciones.}
+\label{tab:contribuciones}
+\begin{tabularx}{\linewidth}{@{}l X@{}}
+\toprule
+Integrante & Contribución registrada \\
+\midrule
+Pablo Daniel Barillas Moreno & Coordinación, integración y reproducibilidad (por registrar) \\
+Jorge Palacios & Pipeline reproducible de NHAMCS 2022 (descarga, preparación, calibración y pruebas), agregados en \texttt{data/processed/}, \texttt{docs/05\_data\_calibration.md} y entradas NHAMCS de la bibliografía \\
+Adrián Ricardo González Muralles & Correcciones del simulador (cola tras calentamiento, drenaje, capacidad efectiva), diseño factorial, candidata congelada, 180 ejecuciones, validación frente a NHAMCS, figuras y pruebas \\
+Andrés Rafael Chivalán & Interfaz, visualización y demostración (por registrar) \\
+Javier Andrés Chen & Informe técnico en LaTeX y script de generación de tablas y figuras (\texttt{report/}, \texttt{scripts/build\_report\_assets.py}); presentación, guion y auditoría final pendientes \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Uso de inteligencia artificial}
+Se declara en \texttt{docs/ai\_usage.md}: OpenAI Codex apoyó la planificación, la estructura
+del repositorio, la revisión de código, las correcciones del simulador, el pipeline
+experimental y la documentación inicial; Claude Code apoyó la documentación del pipeline de
+calibración de NHAMCS. Para este informe se usó además Claude (Anthropic) como apoyo para
+estructurar y redactar el borrador y para escribir el script que convierte la evidencia en
+tablas y figuras. Las cifras proceden exclusivamente de \texttt{evidence/final/} y de
+\texttt{data/processed/}, y los integrantes son responsables de revisarlas y de poder
+explicarlas. Las herramientas de IA no se usaron como fuente de datos ni como autoridad
+bibliográfica.
+
+\subsection{Reproducibilidad del informe}
+Las tablas, las macros con cifras y las figuras de este informe se regeneran con
+\begin{center}\small\texttt{python scripts/build\_report\_assets.py}\end{center}
+y el documento se compila con \texttt{latexmk -xelatex main.tex} desde \texttt{report/}.
+Ninguna cifra de las secciones de resultados se escribió a mano.

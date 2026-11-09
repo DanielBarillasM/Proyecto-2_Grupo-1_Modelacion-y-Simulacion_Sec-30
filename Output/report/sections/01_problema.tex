@@ -1,0 +1,52 @@
+\section{Problema real, contexto, objetivo y pregunta}
+
+\subsection{Contexto}
+Los departamentos de emergencias reciben una demanda que cambia con la hora, mientras que
+la capacidad suele asignarse por turnos de forma más rígida. Una distribución uniforme de
+equipos puede dejar capacidad ociosa en horas tranquilas y formar colas en horas de mayor
+llegada. El proyecto evalúa, mediante simulación, si reasignar la \emph{misma} cantidad de
+recursos entre bloques horarios reduce el tiempo de espera.
+
+El escenario de referencia es un DE estadounidense descrito por datos públicos de NHAMCS
+2022 \citep{nhamcs2022doc}. No pretende caracterizar un hospital en particular ni producir
+recomendaciones clínicas.
+
+\subsection{Pregunta de investigación}
+\begin{quote}
+\emph{¿Cuánto puede reducirse el tiempo de espera de los pacientes al redistribuir una
+cantidad fija de equipos de atención entre seis bloques de cuatro horas, sin aumentar las
+horas-recurso totales?}
+\end{quote}
+
+\subsection{Objetivos}
+\textbf{General.} Diseñar, implementar y evaluar una simulación de eventos discretos que
+compare una asignación base con una asignación optimizada de recursos.
+
+\textbf{Específicos.}
+\begin{enumerate}
+  \item Estimar perfiles horarios de llegada y de triaje con datos públicos NHAMCS 2022.
+  \item Construir un modelo parametrizable con llegadas aleatorias, prioridades y capacidad
+  variable.
+  \item Implementar un algoritmo genético que redistribuya recursos sin aumentar el total.
+  \item Verificar automáticamente que toda solución propuesta cumpla las restricciones.
+  \item Comparar escenarios con métricas comunes, semillas pareadas y una referencia real.
+\end{enumerate}
+
+\subsection{Métricas}
+La métrica principal es la \textbf{espera media hasta el inicio de la atención}, en
+minutos, con sentido de minimización. Las métricas secundarias son la mediana, el
+percentil 90, la proporción de pacientes con espera superior a 60 minutos, la cola media y
+máxima (pacientes) y la utilización de los equipos (proporción).
+
+\subsection{Alcance y supuestos}
+\begin{itemize}
+  \item Horizonte de 24 horas en seis bloques de cuatro horas; la capacidad solo cambia al
+  inicio de cada bloque.
+  \item Cada paciente usa un solo equipo a la vez; el nivel de triaje no cambia durante la
+  espera.
+  \item La cola respeta prioridad clínica y, dentro de cada prioridad, el orden de llegada.
+  \item El servicio es una abstracción de ocupación del equipo, no tiempo continuo de
+  contacto con un médico.
+  \item Quedan fuera: diagnóstico y resultados clínicos, traslados, disponibilidad
+  individual de personal, camas de hospitalización y cualquier predicción para Guatemala.
+\end{itemize}

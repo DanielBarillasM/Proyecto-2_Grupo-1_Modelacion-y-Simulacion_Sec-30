@@ -1,0 +1,47 @@
+\section{Investigación: simulación, algoritmo genético y alternativas}
+
+\subsection{Simulación de eventos discretos}
+El estado de un DE cambia en instantes discretos (llegada, inicio y fin de atención), y la
+congestión surge de la interacción entre llegadas aleatorias y capacidad limitada. La
+simulación de eventos discretos (DES) avanza el reloj solo entre eventos y permite registrar
+cada espera y comparar políticas bajo las mismas secuencias aleatorias. Se usó SimPy
+\citep{simpy412} para el reloj, la agenda de eventos y los recursos con prioridad; el
+equipo desarrolló los procesos de paciente, el cambio de capacidad por bloque, la cola
+clínica, las métricas y las verificaciones.
+
+\subsection{Algoritmo genético restringido}
+Un algoritmo genético (GA) mantiene una población de soluciones y las mejora mediante
+selección, cruce y mutación \citep{eiben2015evolutionary}. Aquí un individuo es un vector
+entero $x=(x_0,\dots,x_5)$ con los equipos de cada bloque de cuatro horas. La evaluación
+de un individuo es una simulación estocástica, por lo que el GA usa la DES como función de
+aptitud ruidosa. Las restricciones se manejan con la regla de factibilidad de
+\citet{deb2000constraints}: una solución factible domina a una no factible; entre factibles
+gana el menor objetivo; entre no factibles gana la menor violación. La literatura reciente
+sobre dotación de personal en emergencias combina simulación y optimización de forma
+similar \citep{wang2025staffing}.
+
+\subsection{Alternativas consideradas}
+\begin{table}[ht]
+\centering\small
+\caption{Comparación de técnicas de optimización para el problema de dotación horaria.}
+\label{tab:alternativas}
+\begin{tabularx}{\linewidth}{@{}l X X@{}}
+\toprule
+Alternativa & Ventaja & Por qué no es la técnica principal \\
+\midrule
+Enumeración exhaustiva & Encuentra el mejor valor del espacio evaluado & Cada candidato exige varias simulaciones; el costo crece con límites, bloques y réplicas \\
+Programación lineal entera & Ofrece garantías en problemas lineales & La espera y sus percentiles emergen de una simulación no lineal y estocástica \\
+Búsqueda aleatoria & Sencilla; útil como referencia & No reutiliza información de soluciones prometedoras \\
+Enjambre de partículas & Buen desempeño en espacios continuos & Representación entera, restringida, con reparación frecuente \\
+Algoritmo genético & Maneja vectores enteros, operadores propios y restricciones & No garantiza optimalidad global; exige controlar ruido y convergencia \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Limitaciones de la técnica}
+Un GA no demuestra optimalidad global y puede converger prematuramente. Con pocas
+réplicas por candidato puede seleccionar por ruido; por eso la candidata se reevalúa con
+semillas independientes (sección~\ref{sec:diseno}). La investigación previa del proyecto
+planteó una búsqueda aleatoria con el mismo presupuesto de evaluaciones como comparador;
+\emph{la evidencia final no incluye ese comparador}, de modo que no se puede afirmar cuánto
+aporta la estructura evolutiva frente a probar horarios al azar.

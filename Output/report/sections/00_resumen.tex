@@ -1,0 +1,47 @@
+\section*{Resumen ejecutivo}
+\addcontentsline{toc}{section}{Resumen ejecutivo}
+
+\textbf{Pregunta.} ¿Cuánto puede reducirse la espera hasta el inicio de la atención al
+redistribuir 23 unidades de capacidad (92 horas-equipo diarias) entre seis bloques de
+cuatro horas, sin aumentar el total?
+
+\textbf{Qué se hizo.} Se simuló un DE de referencia (la mediana de volumen de los DE de
+NHAMCS 2022) y se buscó con un algoritmo genético restringido un horario que minimiza una
+combinación de espera media y percentil 90. Se congeló la candidata con semillas de
+optimización (\OptSeedFirst--\OptSeedLast) y se evaluó con otras
+(\EvalSeedFirst--\EvalSeedLast): \NConditions{} condiciones (2 horarios $\times$ 3 niveles
+de demanda), \NReps{} réplicas por condición, \NRuns{} ejecuciones en total.
+
+\textbf{Qué mejoró y cuánto.}
+\begin{itemize}
+  \item \emph{Demanda nominal:} espera media de \WaitBaseNom{} a \WaitCandNom{} min,
+  una reducción pareada de \RedNom{} min (\RedPctNom\,\%), IC 95\,\% [\RedCILowNom,
+  \RedCIHighNom] min; mediana de \NomBaseMedian{} a \NomCandMedian{} min, percentil 90 de
+  \NomBasePninety{} a \NomCandPninety{} min y proporción con espera $>$ 60 min de
+  \NomBaseShare{} a \NomCandShare{}. El horario candidato favorece a \PairsPosNom{} de
+  las \NReps{} parejas.
+  \item \emph{Demanda alta (1.20):} reducción de \RedHigh{} min (\RedPctHigh\,\%), IC 95\,\%
+  [\RedCILowHigh, \RedCIHighHigh] min.
+  \item \emph{Demanda baja (0.80):} reducción de \RedLow{} min con IC 95\,\% [\RedCILowLow,
+  \RedCIHighLow] min, que incluye el cero; no se afirma mejora en esa condición.
+\end{itemize}
+
+\textbf{Qué tan confiable es la comparación.} La comparación entre horarios es pareada
+(mismas semillas) y descrita con intervalos, pero la variación entre días simulados es
+grande (desviación estándar de la espera media nominal: \StdBaseNom{} min en la base y
+\StdCandNom{} min en la candidata). Frente a la espera observada en NHAMCS
+(\RefMeanWait{} min), el modelo base la sobreestima (\WaitBaseNom{} min); la candidata se
+acerca (\WaitCandNom{} min), pero eso no valida la intervención, porque el algoritmo no se
+ajustó a \texttt{WAITTIME}.
+
+\textbf{Limitaciones principales.} El tiempo de servicio es un supuesto, no un dato
+observado; el modelo usa un recurso único agregado sin preempción ni abandono; NHAMCS es
+una referencia nacional de Estados Unidos y no describe un hospital guatemalteco; con
+demanda alta el sistema se satura (drenajes medios de \DrainBaseHigh{}--\DrainCandHigh{}~min).
+
+\begin{alcance}
+La mejora que se reporta es una \textbf{mejora simulada} bajo supuestos explícitos. No se
+implementó ninguna intervención ni se observó una mejora clínica u operativa real.
+\end{alcance}
+
+\newpage

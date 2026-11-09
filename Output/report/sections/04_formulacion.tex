@@ -1,0 +1,107 @@
+\section{Formulación matemática y diagrama del modelo}
+\label{sec:formulacion}
+
+\subsection{Diagrama del sistema}
+\begin{figure}[ht]
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[
+  node distance=4mm and 4mm,
+  box/.style={draw,rounded corners=2pt,minimum height=9mm,minimum width=18mm,align=center,font=\small},
+  dec/.style={draw,diamond,aspect=2,inner sep=1pt,align=center,font=\small},
+  param/.style={draw,dashed,rounded corners=2pt,minimum height=8mm,align=center,font=\footnotesize},
+  >={Stealth[length=2mm]}]
+  \node[box] (arr) {Llegada\\según la hora};
+  \node[box,right=of arr] (tri) {Asignación\\de triaje};
+  \node[box,right=of tri] (cola) {Cola\\prioritaria};
+  \node[dec,right=of cola] (dis) {Equipo\\libre?};
+  \node[box,right=of dis] (ate) {Atención};
+  \node[box,right=of ate] (sal) {Salida};
+  \node[param,below=10mm of dis] (cap) {Horario de capacidad\\(6 bloques de 4 h)};
+  \node[param,below=10mm of tri] (cfg) {Configuración y semilla};
+  \draw[->] (arr)--(tri); \draw[->] (tri)--(cola); \draw[->] (cola)--(dis);
+  \draw[->] (dis)--node[above,font=\footnotesize]{sí}(ate); \draw[->] (ate)--(sal);
+  \draw[->] (dis) to[bend right=40] node[above,font=\footnotesize]{no} (cola);
+  \draw[->,dashed] (cap)--(dis);
+  \draw[->,dashed] (cfg)--(tri);
+\end{tikzpicture}}
+\caption{Flujo del paciente en el modelo. La capacidad por bloque determina cuántas
+atenciones pueden ejecutarse simultáneamente; la semilla controla llegadas, triaje y
+duración.}
+\label{fig:sistema}
+\end{figure}
+
+\subsection{Variables y parámetros}
+\begin{table}[ht]
+\centering\small
+\caption{Variables del modelo, unidades y procedencia.}
+\label{tab:variables}
+\begin{tabularx}{\linewidth}{@{}l l l X l@{}}
+\toprule
+Símbolo & Tipo & Unidad & Descripción & Procedencia \\
+\midrule
+$\lambda_h$ & Parámetro & pac./h & Tasa de llegada en la hora $h$ & derivado \\
+$p_k$ & Parámetro & proporción & Probabilidad del triaje $k=1,\dots,5$ & derivado \\
+$m_k,\ \sigma$ & Parámetro & min, --- & Mediana y dispersión lognormal del servicio & supuesto \\
+$x_b$ & Decisión & equipos & Capacidad del bloque $b=0,\dots,5$ & supuesto / GA \\
+$Q(t)$ & Estado & pacientes & Cola física completa & simulado \\
+$B(t)$ & Estado & equipos & Equipos atendiendo & simulado \\
+$W_i$ & Salida & min & Inicio de servicio menos llegada del paciente $i$ & simulado \\
+$U$ & Salida & proporción & Utilización efectiva de los equipos & simulado \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Llegadas}
+En cada hora se supone una tasa constante $\lambda_h=V\,p_h$, con $p_h$ la proporción
+ponderada de llegadas en la hora $h$ y $V$ el volumen diario de referencia. El tiempo entre
+llegadas es
+\begin{equation}
+T_h=-\frac{\ln U}{\lambda_h},\qquad U\sim\mathrm{Uniforme}(0,1),
+\end{equation}
+y si el tiempo generado cruza la frontera horaria, el reloj avanza hasta la frontera y se
+vuelve a muestrear con la nueva tasa. Es una aproximación por tramos de un proceso de
+Poisson no homogéneo.
+
+\subsection{Prioridad y servicio}
+Los niveles de triaje van de 1 (mayor urgencia) a 5. La cola es no expropiativa: una
+atención en curso no se interrumpe cuando llega un paciente más urgente; la prioridad solo
+ordena a los pacientes en espera, y a igual prioridad se respeta el orden de llegada. La
+duración de la atención del nivel $k$ es lognormal acotada:
+\begin{equation}
+S_k\sim\mathrm{Lognormal}\bigl(\ln m_k,\ \sigma\bigr).
+\end{equation}
+
+\subsection{Capacidad variable, calentamiento y drenaje}
+El recurso se crea con la capacidad máxima diaria y controladores bloquean los espacios no
+disponibles en cada bloque. Si la capacidad baja, la atención en curso termina y luego el
+espacio se bloquea, de modo que nadie es expulsado del servicio. La utilización se define
+sobre la capacidad \emph{efectiva} (la que los pacientes pueden usar):
+\begin{equation}
+U=\frac{\text{minutos-equipo ocupados en la ventana}}
+       {\text{minutos-equipo efectivos disponibles en la ventana}}\ \le 1.
+\end{equation}
+
+Cada ejecución simula dos días: el primero es calentamiento y el segundo es la ventana de
+medición. Los pacientes que llegaron durante el calentamiento y siguen esperando
+permanecen en la cola física y cuentan desde el inicio de la medición; solo se reinician
+los acumuladores estadísticos. Al terminar la ventana se detienen las llegadas y se
+\emph{drena} la cohorte medida hasta que todos inician servicio, de modo que las esperas
+son completas y no hay censura. El tiempo de drenaje se registra aparte y no entra en la
+cola, capacidad ni utilización de la ventana.
+
+\subsection{Función objetivo y restricciones}
+Para un horario $x$ se minimiza
+\begin{equation}
+J(x)=0.7\,\overline{W}(x)+0.3\,Q_{0.90}\bigl(W(x)\bigr)+120\,C(x),
+\end{equation}
+con $\overline{W}$ la espera media (min), $Q_{0.90}$ el percentil 90 de la espera (min) y
+$C$ la proporción de pacientes que no inició atención al final (el término evita premiar
+colas sin atender; con el drenaje vale cero). Las restricciones son
+\begin{equation}
+x_b\in\mathbb{Z},\quad 1\le x_b\le 8,\quad \sum_{b=0}^{5}x_b=23,\quad
+|x_{(b+1)\bmod 6}-x_b|\le 3.
+\end{equation}
+La suma fija conserva las 92 horas-equipo diarias porque los seis bloques duran lo mismo,
+y la última restricción incluye la transición del último bloque al primero porque el
+horario se repite cada día.

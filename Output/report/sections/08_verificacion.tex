@@ -1,0 +1,34 @@
+\section{Verificación interna}
+
+La verificación comprueba que el programa implementa el modelo descrito, sin referirse aún
+a datos reales. Las pruebas automatizadas (\texttt{pytest}) cubren:
+\begin{itemize}
+  \item \textbf{Conservación:} llegadas = completados + pacientes dentro del sistema, con la
+  cohorte medida definida con precisión; no hay esperas ni colas negativas.
+  \item \textbf{Reproducibilidad e independencia:} la misma semilla da exactamente el mismo
+  resultado; semillas distintas dan resultados distintos.
+  \item \textbf{Casos límite:} demanda cero produce cero llegadas; la capacidad no altera la
+  secuencia exógena de llegadas con semilla común.
+  \item \textbf{Calentamiento y drenaje:} la cola física del calentamiento se conserva al
+  iniciar la medición; tras el drenaje no quedan pacientes sin iniciar servicio
+  (en las \NRuns{} ejecuciones finales: drenaje completo \AllDrained, pacientes sin iniciar
+  igual a \MaxNotStarted).
+  \item \textbf{Capacidad:} la utilización efectiva no supera 1 durante descensos de
+  capacidad; también se publica la utilización contra la capacidad nominal para auditar la
+  transición.
+  \item \textbf{Optimización:} el horario cumple longitud, límites, presupuesto y suavidad
+  (incluida la transición cíclica); la reparación y el determinismo del GA.
+  \item \textbf{Experimentos:} emparejamiento de semillas, recomputación de los resúmenes a
+  partir de las réplicas y compatibilidad de métricas y unidades con la referencia.
+  \item \textbf{Interfaz:} cada página de Streamlit carga sin excepciones, el laboratorio no
+  ejecuta antes de enviar el formulario, rechaza capacidades inválidas y muestra las etiquetas
+  de procedencia.
+  \item \textbf{Datos:} esquema, rangos, probabilidades que suman uno, suma de pesos y
+  manejo de códigos especiales.
+\end{itemize}
+Al redactar este informe, \texttt{pytest} ejecuta 64 pruebas con éxito y omite una, que
+requiere descargar el archivo oficial de NHAMCS para comprobar que la transformación
+reproduce byte a byte los agregados versionados.
+
+Esta verificación no demuestra que el modelo sea una buena representación de un DE real; eso
+corresponde a la validación (sección~\ref{sec:validacion}).

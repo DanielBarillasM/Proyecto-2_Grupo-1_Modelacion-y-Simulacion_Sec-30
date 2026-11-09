@@ -1,0 +1,92 @@
+\section{Calibración y procedencia de parámetros}
+\label{sec:calibracion}
+
+\subsection{Qué se calibra y qué se reserva para validar}
+La calibración usa NHAMCS para tres entradas y reserva una cuarta variable para validar.
+Si algún parámetro se ajustara para reproducir \texttt{WAITTIME}, esa validación dejaría de
+ser independiente.
+
+\begin{table}[ht]
+\centering\small
+\caption{Uso de las variables de NHAMCS 2022.}
+\label{tab:usovars}
+\begin{tabularx}{\linewidth}{@{}l l X@{}}
+\toprule
+Uso & Variables & Resultado \\
+\midrule
+Calibración & \texttt{ARRTIME} & Perfil horario de llegadas (derivado) \\
+Calibración & \texttt{IMMEDR} & Probabilidades de triaje 1--5 (derivado) \\
+Calibración & \texttt{PATWT}, \texttt{EDWT} & Volumen diario de un DE de referencia (derivado) \\
+Validación & \texttt{WAITTIME} & Media, mediana, percentil 90 y proporción $>$ 60 min \\
+Solo referencia & \texttt{LOV}, \texttt{BOARDED} & Cota superior de la ocupación de un equipo \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Perfil horario, triaje y volumen}
+Las proporciones, medias y cuantiles usan \texttt{PATWT}; los errores estándar se obtienen
+por linealización de Taylor con las variables de diseño enmascaradas de NCHS. Los códigos
+especiales del libro de códigos (por ejemplo, ``en blanco'', ``no aplica'', ``desconocido'')
+se convierten en faltantes y nunca se interpretan como cantidades clínicas; cada registro
+se excluye solo de las estimaciones que requieren esa variable. Se asume que, tras
+ponderar, los registros excluidos se parecen a los incluidos, supuesto relevante porque la
+no respuesta documentada es de 27.8\,\% en \texttt{IMMEDR} y de 14.1\,\% en \texttt{WAITTIME}.
+
+La tasa horaria es $\lambda_h=V\,p_h$. El perfil nacional indica \emph{cuándo} llegan los
+pacientes, no \emph{cuántos} llegan a un hospital: por eso $V$ es una decisión separada. Se
+tomó la \textbf{mediana de volumen por departamento ponderada por \texttt{EDWT}}, de
+\DailyVolume{} visitas por día ($\approx$ \DailyVolumeRound), en lugar de la media nacional
+(90.8 visitas/día), que está dominada por departamentos muy grandes. La elección del
+estadístico es un supuesto del equipo aplicado a un valor derivado. La tabla~\ref{tab:bloques}
+resume el perfil agregado por bloque de cuatro horas.
+
+\begin{table}[ht]
+\centering\small
+\caption{Llegadas por bloque en el departamento de referencia y capacidad de cada horario.}
+\label{tab:bloques}
+\fittable{generated/tab_blocks.tex}
+\end{table}
+
+\begin{table}[ht]
+\centering\small
+\caption{Probabilidades de triaje derivadas de NHAMCS y medianas de servicio supuestas.
+El proxy $\texttt{LOV}-\texttt{WAITTIME}-\texttt{BOARDED}$ es una cota superior, no el
+servicio del modelo.}
+\label{tab:triaje}
+\fittable{generated/tab_triage.tex}
+\end{table}
+
+\subsection{\texttt{WAITTIME} y \texttt{LOV}}
+\texttt{WAITTIME} mide los minutos desde la llegada hasta el primer contacto con un
+proveedor y es la magnitud más cercana a la espera del modelo; los ceros y los valores
+extremos documentados se conservan. \texttt{LOV} mide la \emph{duración total de la visita}
+(espera, atención, pruebas, esperas internas y \emph{boarding}), no el tiempo en que un
+único equipo está ocupado. El proxy $\texttt{LOV}-\texttt{WAITTIME}-\texttt{BOARDED}$ aún
+contiene tiempo sin ocupación del equipo y sus medianas son de 1.8 a 2.5 veces las
+supuestas por el modelo (tabla~\ref{tab:triaje}); usarlo como servicio sobredimensionaría
+la ocupación.
+
+\textbf{Decisión.} Las medianas de servicio y $\sigma=\ServiceSigma$ se mantienen como
+\emph{supuesto} (categoría de procedencia de supuesto); el proxy se publica como cota superior
+para la discusión. Es la entrada menos respaldada por datos y la principal amenaza a la
+validez (sección~\ref{sec:incertidumbre}).
+
+\subsection{Clasificación de las entradas calibradas}
+\begin{table}[ht]
+\centering\small
+\caption{Procedencia de cada entrada del modelo.}
+\label{tab:entradas}
+\begin{tabularx}{\linewidth}{@{}X l@{}}
+\toprule
+Entrada & Categoría \\
+\midrule
+Forma del perfil horario $p_h$ & \texttt{derived\_from\_public} \\
+Volumen diario $V$ (valor) / elección de la mediana & \texttt{derived\_from\_public} / \texttt{estimated\_assumption} \\
+Probabilidades de triaje & \texttt{derived\_from\_public} \\
+Medianas y $\sigma$ de servicio & \texttt{estimated\_assumption} \\
+Presupuesto de 23 unidades y límites del horario & \texttt{estimated\_assumption} \\
+Esperas de referencia (\texttt{WAITTIME}) & \texttt{derived\_from\_public} \\
+Llegadas, esperas y colas simuladas & \texttt{synthetic\_simulation} \\
+\bottomrule
+\end{tabularx}
+\end{table}

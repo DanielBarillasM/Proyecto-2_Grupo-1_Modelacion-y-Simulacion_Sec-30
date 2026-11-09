@@ -1,0 +1,39 @@
+\section{Diseño experimental, semillas y condiciones}
+\label{sec:diseno}
+
+\subsection{Diseño factorial}
+Se cruzan dos horarios (base y candidata congelada) con tres niveles de demanda:
+0.80, 1.00 y 1.20 veces el volumen de referencia. El diseño tiene \NConditions{} condiciones
+y cada una usa \NReps{} réplicas independientes, para \NRuns{} ejecuciones finales. Los
+niveles 0.80 y 1.20 funcionan también como análisis de sensibilidad alrededor de la
+condición nominal.
+
+\subsection{Semillas y congelamiento de la candidata}
+\begin{itemize}
+  \item \textbf{Optimización:} semillas \OptSeedFirst--\OptSeedLast{} (diez), solo para
+  buscar y seleccionar la candidata; semilla del algoritmo \AlgSeed.
+  \item \textbf{Evaluación:} semillas \EvalSeedFirst--\EvalSeedLast{} (\NReps{}), no usadas
+  para buscar, seleccionar ni modificar la candidata.
+  \item \textbf{Emparejamiento:} dentro de cada nivel de demanda, la réplica $i$ de la base y
+  la de la candidata comparten semilla (números aleatorios comunes); réplicas distintas usan
+  semillas distintas.
+\end{itemize}
+El archivo \texttt{frozen\_candidate.json} se escribe antes de evaluar las semillas finales.
+
+\subsection{Estadísticos}
+Por condición y métrica se reportan el número de réplicas, la media, la desviación estándar
+muestral, el intervalo de confianza normal del 95\,\% para la media, la mediana y los
+percentiles 10 y 90 entre réplicas. Para comparar horarios se usa la diferencia pareada
+$\text{base}-\text{candidata}$ (positiva significa menos espera con la candidata), su media,
+su intervalo normal del 95\,\% y el número de parejas favorables. El análisis es
+\emph{descriptivo}: no se ejecuta una prueba de hipótesis y no se usa la palabra
+``significativo''.
+
+\subsection{Reproducción}
+Todo el directorio \texttt{evidence/final/} se regenera con
+\texttt{python scripts/generate\_evidence.py}; la evaluación sola, con la candidata ya
+congelada, con \texttt{python scripts/run\_experiments.py --candidate
+evidence/final/frozen\_candidate.json}. El manifiesto registra versiones
+(Python \PythonVersion), sumas de verificación de los datos procesados, configuración,
+semillas y comandos. La generación usada en este informe corresponde al commit
+\texttt{\GitCommit}.

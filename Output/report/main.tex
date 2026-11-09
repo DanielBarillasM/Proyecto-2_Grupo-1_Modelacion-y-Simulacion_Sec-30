@@ -1,0 +1,95 @@
+% Informe técnico del Proyecto 2 (CC3074 Modelación y Simulación, UVG).
+% Compilar con XeLaTeX:   cd report && latexmk -xelatex main.tex
+% Las cifras y tablas se importan de report/generated/, que produce
+% scripts/build_report_assets.py a partir de evidence/final/.
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{fontspec}
+\usepackage[provide=*,main=spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,tabularx,array}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric}
+\usepackage[most]{tcolorbox}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[hidelinks]{hyperref}
+
+\setlist{itemsep=2pt,topsep=4pt}
+\captionsetup{font=small,labelfont=bf}
+\captionsetup[table]{name=Tabla}
+\setcounter{tocdepth}{1}
+\setlength{\parskip}{4pt}
+\setlength{\emergencystretch}{3em}
+\setlength{\parindent}{0pt}
+\renewcommand{\arraystretch}{1.12}
+
+% Cuadro de alcance de la afirmación (se repite cerca de los resultados).
+\newtcolorbox{alcance}[1][Alcance de la afirmación]{
+  colback=gray!8,colframe=gray!60!black,fonttitle=\bfseries\small,
+  title=#1,boxrule=0.6pt,arc=2pt,left=6pt,right=6pt,top=4pt,bottom=4pt}
+
+% Tablas anchas: letra pequeña y escalado al ancho de página.
+\newcommand{\fittable}[1]{\begin{center}\small\resizebox{\linewidth}{!}{\input{#1}}\end{center}}
+
+\input{generated/macros.tex}
+
+\title{Redistribución horaria de equipos de atención en un departamento de
+emergencias de referencia:\\ simulación de eventos discretos y algoritmo genético restringido}
+\author{Pablo Daniel Barillas Moreno \and Jorge Palacios \and
+Adrián Ricardo González Muralles \and Andrés Rafael Chivalán \and
+Javier Andrés Chen}
+\date{Universidad del Valle de Guatemala\\
+CC3074 Modelación y Simulación, sección 30 --- Proyecto 2, Grupo 1\\
+Noviembre de 2026}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\begin{abstract}
+\noindent
+Este informe estudia si redistribuir una cantidad fija de equipos de atención entre
+seis bloques de cuatro horas reduce la espera de los pacientes de un departamento de
+emergencias (DE) de referencia, sin aumentar las horas-equipo. Se construyó una
+simulación de eventos discretos (SimPy) con llegadas dependientes de la hora, cola
+no expropiativa con prioridad de triaje y capacidad variable, calibrada con el archivo
+público NHAMCS 2022 de los CDC. Un algoritmo genético con restricciones propuso un
+horario candidato (1, 2, 5, 5, 6, 4 equipos frente a 3, 3, 4, 4, 5, 4 del horario base,
+ambos con 23 unidades).
+Se evaluó con \NReps{} réplicas independientes por condición, con semillas pareadas
+y distintas de las usadas para optimizar. Bajo la demanda nominal, la espera media
+simulada pasó de \WaitBaseNom{} a \WaitCandNom{} min (reducción pareada de \RedNom{} min,
+\RedPctNom\,\%; IC 95\,\% [\RedCILowNom, \RedCIHighNom] min). El efecto es incierto
+con demanda baja y mayor con demanda alta. La mejora es \emph{simulada}, no observada;
+el modelo base sobreestima las esperas de NHAMCS y no representa a un hospital
+guatemalteco.
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+
+\input{sections/00_resumen}
+\input{sections/01_problema}
+\input{sections/02_datos}
+\input{sections/03_tecnica}
+\input{sections/04_formulacion}
+\input{sections/05_implementacion}
+\input{sections/06_calibracion}
+\input{sections/07_diseno}
+\input{sections/08_verificacion}
+\input{sections/09_validacion}
+\input{sections/10_resultados}
+\input{sections/11_incertidumbre}
+\input{sections/12_conclusiones}
+\input{sections/13_contribuciones}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}
