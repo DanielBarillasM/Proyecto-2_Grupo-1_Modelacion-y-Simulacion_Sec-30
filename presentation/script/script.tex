@@ -1,0 +1,123 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\AtBeginDocument{\raggedright\emergencystretch=3em\hyphenpenalty=10000\exhyphenpenalty=10000}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{booktabs,longtable,array,xcolor,enumitem}
+\usepackage[hidelinks]{hyperref}
+\definecolor{main}{HTML}{0B6E8A}
+\definecolor{alert}{HTML}{B7791F}
+\setlength{\parindent}{0pt}\setlength{\parskip}{6pt}
+\newcommand{\bloque}[4]{\vspace{10pt}{\Large\bfseries\color{main}#1}\hfill{\large #2}\\[-4pt]{\small\color{gray}#3}\par\vspace{-2pt}\textit{Diapositivas: #4}\par}
+\newenvironment{habla}{\begin{quote}\raggedright}{\end{quote}}
+\newcommand{\accion}[1]{\par\noindent{\color{alert}\textbf{Acción:}} #1}
+\newcommand{\transicion}[1]{\par\noindent{\color{main}\textbf{Transición:}} #1}
+\title{Guion de exposición, demostración y defensa\\[2pt]\large Proyecto 2: Asignación horaria de equipos en emergencias}
+\author{CC3074 Modelización y Simulación, Sección 30, Grupo 1}
+\date{}
+\begin{document}
+\maketitle
+
+\section*{Resumen de tiempos (15 minutos en total, incluyendo preguntas)}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{2cm}>{\raggedright\arraybackslash}p{4.4cm}>{\raggedright\arraybackslash}p{6cm}>{\raggedright\arraybackslash}p{2.6cm}@{}}
+\toprule
+Tiempo & Integrante & Contenido & Diapositivas\\
+\midrule
+0:00--2:00 & Pablo Daniel Barillas Moreno & Problema, objetivo y fuente & 1--2\\
+2:00--4:00 & Jorge Palacios & Modelo, datos, variables y supuestos & 3--4\\
+4:00--7:00 & Adrián Ricardo González Muralles & Técnica, integración y verificación & 5, 6 y 8\\
+7:00--10:00 & Andrés Rafael Chivalán & Demostración funcional & 7\\
+10:00--13:00 & Javier Andrés Chen & Resultados, validación y comparación real & 9--10\\
+13:00--15:00 & Pablo Daniel Barillas Moreno & Conclusión, limitaciones y defensa inicial & 11 (12 de respaldo)\\
+\bottomrule
+\end{tabular}
+
+Ritmo de referencia: unas 140 palabras por minuto. El tiempo de preguntas forma parte de los 15 minutos; por eso el cierre de Pablo ocupa cerca de un minuto y deja el resto para la defensa.
+
+%-----------------------------------------------------------
+\bloque{Pablo Daniel Barillas Moreno}{0:00--2:00}{Problema, objetivo y fuente}{1 y 2}
+\begin{habla}
+Buenos días. Somos el Grupo 1 de la sección 30. En un servicio de emergencias los pacientes llegan de forma desigual durante el día, pero los equipos de atención son limitados. Nuestra pregunta es: ¿cuánto puede reducirse la espera de los pacientes si redistribuimos una cantidad fija de equipos entre seis bloques de cuatro horas, sin aumentar las horas-equipo totales? El presupuesto es de 23 unidades por día, es decir, 92 horas-equipo. Para responderla combinamos una simulación de eventos discretos, hecha en Python con SimPy, y un algoritmo genético que busca el mejor reparto.
+
+\textit{[Diapositiva 2]} Como referencia real usamos NHAMCS 2022, la encuesta pública de los CDC con 16\,025 visitas a emergencias en Estados Unidos. De ahí sacamos la hora de llegada y el nivel de triaje; la espera hasta el primer proveedor la reservamos para validar. Algo importante: es una referencia nacional de Estados Unidos y no representa a un hospital guatemalteco. Por eso nuestro resultado será una mejora \emph{simulada}, no una mejora observada. Cada dato del proyecto lleva una etiqueta: observado público, derivado, supuesto o simulado.
+\end{habla}
+\transicion{``Jorge nos explica cómo modelamos el sistema.''}
+
+%-----------------------------------------------------------
+\bloque{Jorge Palacios}{2:00--4:00}{Modelo, datos, variables y supuestos}{3 y 4}
+\begin{habla}
+Gracias, Pablo. El modelo sigue el recorrido de un paciente. Llega con un proceso de Poisson cuya tasa cambia cada hora; con el volumen mediano de referencia son unos 64 pacientes por día. Cada uno recibe un nivel de triaje del 1 al 5 con las probabilidades de NHAMCS: la mitad son nivel 3 y casi un 30\,\% nivel 4. Luego espera en una cola con prioridad clínica y sin expropiación: una atención iniciada no se interrumpe.
+
+\textit{[Diapositiva 4]} El servicio es lognormal, con sigma de 0,45 y medianas de 35 a 120 minutos según el triaje. Aquí tomamos una decisión honesta: NHAMCS trae la duración total de la visita, pero incluye esperas internas y sobreestima lo que ocupa un equipo. Por eso las medianas de servicio son un supuesto nuestro, y esa variable la usamos solo como cota superior. Las decisiones son seis enteros, uno por bloque: deben sumar 23, estar entre 1 y 8, y no cambiar más de 3 entre bloques consecutivos. Simulamos un día de calentamiento y uno de medición.
+\end{habla}
+\transicion{``Adrián explica cómo optimizamos y cómo comprobamos que el simulador es confiable.''}
+
+%-----------------------------------------------------------
+\bloque{Adrián Ricardo González Muralles}{4:00--7:00}{Técnica, integración y verificación}{5, 6 y 8}
+\begin{habla}
+Gracias, Jorge. Usamos un algoritmo genético porque el espacio es discreto, tiene restricciones y el objetivo sale de una simulación aleatoria. Cada individuo es el vector de seis capacidades. Usamos población de 24, cruce de 0,8, mutación de 0,25, dos élites y torneo de 3. Cada horario se evalúa en el simulador con 10 réplicas, y la aptitud combina espera media, percentil 90 y una penalización por pacientes sin atender. Con la regla de Deb y una reparación, una solución no factible nunca gana, y con números aleatorios comunes dos horarios se comparan bajo la misma demanda. El algoritmo evaluó 61 horarios en 9 generaciones, con las semillas 10000 a 10009, que sirven solo para elegir.
+
+\textit{[Diapositiva 6]} La candidata quedó congelada: 1, 2, 5, 5, 6, 4, frente a 3, 3, 4, 4, 5, 4 de la base. Menos equipos de madrugada y más en las horas de mayor llegada. En la optimización la mejora fue de 42,8\,\% en el objetivo, pero con semillas independientes fue menor, cerca de 28\,\% en la espera media; es lo esperable cuando se elige el mejor entre varios horarios.
+
+\textit{[Diapositiva 8]} Para la evaluación final probamos dos horarios con tres niveles de demanda, 0,8, 1 y 1,2: seis condiciones, 30 réplicas cada una, 180 ejecuciones, con semillas de 30000 a 30029. Base y candidata comparten semilla en cada pareja. Antes corregimos el simulador: la cola durante el calentamiento, el drenaje al final de la ventana y la capacidad efectiva. Lo verificamos con pruebas automáticas, y en las 180 ejecuciones ningún paciente quedó sin iniciar atención.
+\end{habla}
+\transicion{``Andrés nos muestra todo esto funcionando.''}
+
+%-----------------------------------------------------------
+\bloque{Andrés Rafael Chivalán}{7:00--10:00}{Demostración funcional}{7}
+\textbf{Antes de empezar (checklist):} aplicación ya iniciada con \texttt{streamlit run app.py}; escenario de prueba ejecutado una vez antes; pestaña de la página \emph{Evidencia} abierta; \texttt{evidence/final/figures/} abierta como respaldo.
+
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{1.5cm}>{\raggedright\arraybackslash}p{4.6cm}>{\raggedright\arraybackslash}p{4.2cm}>{\raggedright\arraybackslash}p{5cm}@{}}
+\toprule
+Tiempo & Acción visible & Qué decir & Resultado esperado\\
+\midrule\endhead
+7:00 & Página \emph{Resumen}. & ``La aplicación tiene cinco páginas: Resumen, Modelo, Laboratorio, Optimización y Evidencia.'' & Se ven la pregunta y el alcance.\\
+7:20 & Página \emph{Modelo}, un vistazo. & ``Aquí están el flujo y las etiquetas de datos.'' & Flujo y categorías de procedencia.\\
+7:40 & \emph{Laboratorio}: semilla 2026, demanda 1,00, capacidad \texttt{3,3,4,4,5,4}; pulsar \emph{Ejecutar escenario}. & ``La simulación solo corre al enviar el formulario. Este es el horario base.'' & Aparece el indicador de carga y luego las métricas de espera y cola.\\
+8:30 & Cambiar capacidad a \texttt{1,2,5,5,6,4} y ejecutar de nuevo. & ``Mismo presupuesto, otro reparto. Con una sola semilla el resultado puede variar: la evidencia está en las 30 réplicas.'' & Métricas nuevas; no se promete que mejoren en esta semilla.\\
+9:10 & \emph{Optimización}: candidata precomputada. & ``La búsqueda en vivo usa parámetros reducidos y no reemplaza la candidata congelada.'' & Candidata 1, 2, 5, 5, 6, 4 y sus restricciones.\\
+9:30 & \emph{Evidencia}: diferencias pareadas. & ``Estos resultados finales ya están calculados; se exploran sin recalcular.'' & Figuras y tablas de las 180 ejecuciones, con el aviso de que la mejora es simulada.\\
+\bottomrule
+\end{longtable}
+
+\textbf{Plan alternativo si falla el entorno:} no ejecutar nada en vivo. Mostrar las figuras de \texttt{evidence/final/figures/} y decir: ``La demostración en vivo no está disponible; esta es la misma evidencia precomputada que mostraría la página Evidencia.'' Si solo falla el Laboratorio, saltar a Optimización y Evidencia. La demostración no debe pasar de 3 minutos.
+\transicion{``Javier presenta los resultados finales.''}
+
+%-----------------------------------------------------------
+\bloque{Javier Andrés Chen}{10:00--13:00}{Resultados, validación y comparación real}{9 y 10}
+\begin{habla}
+Gracias, Andrés. Veamos qué dice la evidencia final: seis condiciones, 30 réplicas cada una y semillas distintas de las de optimización. En cada réplica, base y candidata ven la misma demanda, y por eso comparamos en pares. Con demanda nominal, la espera media simulada baja de 74,5 a 53,6 minutos. La reducción pareada es de 20,9 minutos, un 28\,\%, con intervalo de confianza del 95\,\% entre 9,1 y 32,7. También bajan la mediana, el percentil 90 y la proporción de pacientes que esperan más de una hora, de 27 a 22\,\%.
+
+\textit{[Señalar la fila ``NHAMCS'' de la diapositiva 9]} Ahora, la parte honesta. En NHAMCS la espera media observada es de 38,2 minutos. Nuestro modelo base la sobreestima: 74,5. La candidata queda más cerca, pero eso no valida la mejora: el algoritmo minimizó la espera simulada, no se ajustó a esa referencia, y la referencia es el promedio de muchos departamentos distintos. Por eso las cifras absolutas no son predicciones; con más confianza podemos leer la dirección del efecto que su tamaño.
+
+\textit{[Diapositiva 10]} En la gráfica se ve que el efecto depende de la carga. Con demanda alta, la reducción es mayor, 50,8 minutos, aunque el sistema se satura y la cifra es solo indicativa. Con demanda baja, la reducción es de 1,8 minutos y el intervalo incluye el cero, así que no afirmamos mejora. Además, la variación entre días simulados es grande; por eso mostramos intervalos y no solo promedios.
+\end{habla}
+\transicion{``En resumen, es una mejora simulada con supuestos explícitos. Pablo cierra con las limitaciones y la recomendación.''}
+
+\textbf{Plan alternativo:} si no cargan las figuras de la presentación, usar las del informe (\texttt{Output/report/main.pdf}) o \texttt{evidence/final/figures/}.
+
+%-----------------------------------------------------------
+\bloque{Pablo Daniel Barillas Moreno}{13:00--15:00}{Conclusión, limitaciones y defensa inicial}{11 (12 de respaldo)}
+\begin{habla}
+Para cerrar. Redistribuir las mismas 23 unidades reduce la espera simulada, sobre todo cuando el sistema está más exigido: con demanda nominal, de 74,5 a 53,6 minutos. La dirección del efecto es más confiable que su magnitud, porque el servicio es un supuesto y la validación contra NHAMCS es parcial. Las limitaciones son claras: un recurso agregado, datos de Estados Unidos y ningún comparador de optimización. Nuestra recomendación es conservar la candidata como escenario de análisis, no como política aplicable, y calibrar el servicio con datos locales antes de cualquier decisión. Quedamos abiertos a preguntas.
+\end{habla}
+
+\subsection*{Preguntas probables y respuestas breves}
+\begin{itemize}[leftmargin=*]
+\item \textbf{¿Por qué la candidata queda más cerca de NHAMCS si no se ajustó a él?} Es una coincidencia parcial: la mediana casi coincide (15,9 frente a 16 min), pero el percentil 90 sigue en 158,8 frente a 98. El modelo reproduce peor la cola larga y el informe no distingue la causa.
+\item \textbf{¿Por qué la base da 74,5 y la referencia 38,2?} Las poblaciones y las métricas difieren: \texttt{WAITTIME} mide hasta el primer proveedor y el modelo hasta que un equipo inicia la atención, además de que el servicio es un supuesto.
+\item \textbf{¿Es una mejora real?} No. Es simulada. Para trasladarla a un hospital hacen falta datos locales y validación externa.
+\item \textbf{¿Por qué con demanda baja no hay mejora?} La reducción es de 1,8 min y el intervalo incluye el cero; con poca carga el reparto importa poco.
+\item \textbf{¿Se probó el algoritmo contra una búsqueda aleatoria?} No; es una limitación declarada.
+\item \textbf{¿Por qué 30 réplicas?} Es el mínimo exigido por la rúbrica; los intervalos con 30 son amplios y se reportan como tales.
+\end{itemize}
+
+\section*{Puntos a verificar antes de exponer}
+\begin{itemize}[leftmargin=*]
+\item Ensayar con cronómetro: cada bloque debe respetar su tiempo.
+\item Ejecutar \texttt{pytest} y confirmar que pasa antes de mencionar las pruebas.
+\item Probar la demostración completa, incluido el Laboratorio, con el equipo y la red que se usarán.
+\item Confirmar que las cifras de las diapositivas coinciden con \texttt{evidence/final/}.
+\item Que cada integrante pueda explicar el sistema completo, no solo su parte.
+\end{itemize}
+\end{document}
