@@ -83,6 +83,7 @@ específico.
 - [Modelo y simulación](docs/03_model_and_simulation.md)
 - [Implementación de la mejora](docs/04_improvement_implementation.md)
 - [Datos y calibración NHAMCS 2022](docs/05_data_calibration.md)
+- [Diseño experimental y reproducibilidad](docs/06_experimental_design.md)
 - [Trazabilidad de la rúbrica](docs/rubric_traceability.md)
 - [Registro de contribuciones](docs/contributions.md)
 - [Uso de inteligencia artificial](docs/ai_usage.md)
@@ -147,6 +148,25 @@ python -m ed_simulation.cli --optimize --summary-only
 La sección **Optimización** de Streamlit permite ejecutar la misma integración,
 visualizar convergencia y comprobar las restricciones del candidato.
 
+Comprobación rápida del pipeline experimental:
+
+```powershell
+python scripts/generate_evidence.py --smoke
+```
+
+Regenerar la candidata congelada y las 180 ejecuciones finales:
+
+```powershell
+python scripts/generate_evidence.py
+```
+
+Repetir únicamente la evaluación con la candidata ya congelada:
+
+```powershell
+python scripts/run_experiments.py `
+  --candidate evidence/final/frozen_candidate.json
+```
+
 ## Pruebas
 
 ```powershell
@@ -154,7 +174,8 @@ pytest
 ```
 
 Las pruebas verifican configuración, reproducibilidad, conservación de pacientes,
-ausencia de esperas negativas y el caso sin llegadas.
+calentamiento, drenaje terminal, transiciones de capacidad, emparejamiento de
+semillas, agregación y comparación cuantitativa con la referencia.
 
 ## Integrantes
 
