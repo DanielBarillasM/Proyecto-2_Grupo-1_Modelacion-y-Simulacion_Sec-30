@@ -1,0 +1,42 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage{fontspec}
+\usepackage[provide=*,main=spanish]{babel}
+\usepackage[margin=2cm]{geometry}
+\usepackage{booktabs,tabularx,array}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\renewcommand{\arraystretch}{1.18}
+
+\begin{document}
+\begin{center}
+{\LARGE\bfseries Registro final de contribuciones}\\[6pt]
+{\large Proyecto 2 -- Simulación, optimización y validación}\\[4pt]
+CC3074 Modelización y Simulación, sección 30, Grupo 1\\
+Universidad del Valle de Guatemala -- Noviembre de 2026
+\end{center}
+
+\vspace{8pt}
+\small
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{3.5cm} X@{}}
+\toprule
+\textbf{Integrante} & \textbf{Responsabilidades y evidencia principal} \\
+\midrule
+Pablo Daniel Barillas Moreno & Coordinación e integración; definición del problema; investigación del algoritmo genético; implementación inicial del simulador, la CLI y la optimización restringida; reproducibilidad y cierre. Evidencia: \texttt{docs/01--04}, \texttt{src/ed\_simulation/} y pruebas de configuración y optimización. \\
+\addlinespace
+Jorge Palacios & Descarga, verificación, preparación y calibración de NHAMCS 2022; agregados públicos, documentación de procedencia y pruebas de datos. Evidencia: \texttt{scripts/download\_nhamcs.py}, \texttt{prepare\_nhamcs.py}, \texttt{calibration.py}, \texttt{data/processed/} y \texttt{docs/05}. \\
+\addlinespace
+Adrián Ricardo González Muralles & Correcciones de calentamiento, drenaje y capacidad efectiva; diseño experimental; candidata congelada; 180 ejecuciones; sensibilidad, validación, figuras y pruebas. Evidencia: \texttt{experiments.py}, \texttt{validation.py}, \texttt{evidence.py}, \texttt{evidence/final/} y \texttt{docs/06--07}. \\
+\addlinespace
+Andrés Rafael Chivalán & Interfaz Streamlit en cinco páginas; formularios de ejecución controlada; visualizaciones; evidencia precomputada; descargas; procedencia y pruebas de interfaz. Evidencia: \texttt{app.py}, \texttt{app\_pages/}, \texttt{src/ed\_simulation/ui/} y \texttt{tests/test\_app.py}. \\
+\addlinespace
+Javier Andrés Chen & Informe técnico en LaTeX; generación reproducible de tablas, macros y figuras; presentación, guion cronometrado y materiales de respaldo. Evidencia: \texttt{Output/report/}, \texttt{Output/scripts/build\_report\_assets.py} y \texttt{presentation/}. \\
+\bottomrule
+\end{tabularx}
+
+\vfill
+\textbf{Verificación común.} Todo el equipo debe poder explicar el modelo, ejecutar la demostración y defender sus limitaciones. La entrega final se verificó con 64 pruebas aprobadas y una omitida porque requiere descargar el archivo crudo oficial de NHAMCS.
+
+\textbf{Registro canónico.} La versión detallada y los enlaces de evidencia se conservan en \texttt{docs/contributions.md}; el historial de Git complementa este documento.
+
+\end{document}

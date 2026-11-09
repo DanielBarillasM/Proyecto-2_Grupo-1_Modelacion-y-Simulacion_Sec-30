@@ -1,9 +1,8 @@
 \section{Contribuciones, uso de inteligencia artificial y reproducibilidad}
 
 \subsection{Contribuciones}
-La tabla resume lo registrado en \texttt{docs/contributions.md}. Una responsabilidad
-planificada no se cuenta como contribución completada; las celdas pendientes deben
-completarlas los integrantes con archivos y actividades verificables.
+La tabla resume el registro final de \texttt{docs/contributions.md}. Cada aporte se
+vincula con archivos, pruebas, resultados o materiales verificables del repositorio.
 
 \begin{table}[ht]
 \centering\small
@@ -13,11 +12,11 @@ completarlas los integrantes con archivos y actividades verificables.
 \toprule
 Integrante & Contribución registrada \\
 \midrule
-Pablo Daniel Barillas Moreno & Coordinación, integración y reproducibilidad (por registrar) \\
+Pablo Daniel Barillas Moreno & Coordinación e integración; definición del problema; investigación del algoritmo genético; implementación inicial del simulador, la CLI y la optimización restringida; reproducibilidad y cierre \\
 Jorge Palacios & Pipeline reproducible de NHAMCS 2022 (descarga, preparación, calibración y pruebas), agregados en \texttt{data/processed/}, \texttt{docs/05\_data\_calibration.md} y entradas NHAMCS de la bibliografía \\
 Adrián Ricardo González Muralles & Correcciones del simulador (cola tras calentamiento, drenaje, capacidad efectiva), diseño factorial, candidata congelada, 180 ejecuciones, validación frente a NHAMCS, figuras y pruebas \\
-Andrés Rafael Chivalán & Interfaz, visualización y demostración (por registrar) \\
-Javier Andrés Chen & Informe técnico en LaTeX y script de generación de tablas y figuras (\texttt{report/}, \texttt{scripts/build\_report\_assets.py}); presentación, guion y auditoría final pendientes \\
+Andrés Rafael Chivalán & Interfaz Streamlit en cinco páginas, formularios de ejecución controlada, visualizaciones, evidencia precomputada, descargas y pruebas de interfaz \\
+Javier Andrés Chen & Informe técnico en LaTeX, generación reproducible de tablas y figuras (\texttt{Output/report/}, \texttt{Output/scripts/build\_report\_assets.py}), presentación y guion cronometrado \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -35,6 +34,7 @@ bibliográfica.
 
 \subsection{Reproducibilidad del informe}
 Las tablas, las macros con cifras y las figuras de este informe se regeneran con
-\begin{center}\small\texttt{python scripts/build\_report\_assets.py}\end{center}
-y el documento se compila con \texttt{latexmk -xelatex main.tex} desde \texttt{report/}.
+\begin{center}\small\texttt{python Output/scripts/build\_report\_assets.py}\end{center}
+y el documento se compila con \texttt{latexmk -xelatex main.tex} desde
+\texttt{Output/report/}.
 Ninguna cifra de las secciones de resultados se escribió a mano.

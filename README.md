@@ -9,9 +9,9 @@ horaria de la misma cantidad total de recursos puede reducir el tiempo de espera
 de los pacientes. La propuesta integra un proceso de llegadas dependiente de la
 hora, una cola con prioridad clínica y un algoritmo genético con restricciones.
 
-> Estado actual: Partes 1 a 6 implementadas con calibración pública, candidata
-> congelada y evidencia experimental reproducible. Los entregables editoriales
-> finales de la Parte 7 siguen pendientes.
+> Estado final: Partes 1 a 7 implementadas. El repositorio incluye calibración
+> pública, candidata congelada, evidencia experimental reproducible, interfaz,
+> informe técnico, presentación y registro de contribuciones.
 
 ## Pregunta de investigación
 
@@ -60,8 +60,9 @@ específico.
 |-- tests/                         # Pruebas unitarias y de integración
 |-- evidence/                      # Semillas, configuraciones y resultados
 |-- docs/                          # Problema, técnica, trazabilidad y contribuciones
-|-- report/                        # Informe LaTeX y PDF
-`-- presentation/                  # Presentación HTML y guion
+|-- Output/report/                 # Informe LaTeX, PDF, tablas y figuras
+|-- Output/scripts/                # Generación reproducible del informe
+`-- presentation/                  # Presentación HTML y guion de 15 minutos
 ```
 
 ## Partes del proyecto
@@ -78,8 +79,8 @@ específico.
    semillas pareadas, sensibilidad e incertidumbre.
 6. **Comparación con la vida real:** cuatro métricas comparables contra WAITTIME
    de NHAMCS 2022, con error y alcance documentados.
-7. **Resultados y conclusiones:** tablas y figuras técnicas listas; informe,
-   presentación y auditoría editorial final todavía pendientes.
+7. **Resultados y conclusiones:** tablas, figuras, informe, presentación,
+   conclusiones, limitaciones y auditoría editorial final completas.
 
 ## Documentación disponible
 
@@ -103,6 +104,15 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"
+```
+
+Si PowerShell bloquea `Activate.ps1`, no es necesario cambiar la política de
+ejecución. Se puede usar directamente el Python del entorno:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
+.\.venv\Scripts\python.exe -m streamlit run app.py
 ```
 
 La instalación editable incluye las dependencias declaradas en `pyproject.toml`.
@@ -183,6 +193,34 @@ Las pruebas verifican configuración, reproducibilidad, conservación de pacient
 calentamiento, drenaje terminal, transiciones de capacidad, emparejamiento de
 semillas, agregación y comparación cuantitativa con la referencia.
 
+## Informe técnico y presentación
+
+El PDF listo para entregar se encuentra en `Output/report/main.pdf`. Para
+regenerar sus tablas y figuras desde `evidence/final/`:
+
+```powershell
+python -m pip install -e ".[dev,report]"
+python Output/scripts/build_report_assets.py
+cd Output/report
+latexmk -xelatex main.tex
+```
+
+La conversión opcional de los SVG a PDF usa CairoSVG y una biblioteca nativa
+Cairo. Si no está disponible, el script conserva las figuras PDF versionadas y
+regenera de todas formas las tablas y cifras del informe.
+
+La presentación navegable está en `presentation/index.html` y el guion de
+exposición en `presentation/script/script.pdf`. El paquete final conserva el
+HTML, su hoja de estilos y los activos gráficos en una carpeta autocontenida.
+
+## Entregables finales
+
+- Informe técnico: `Output/report/main.pdf`.
+- Evidencia: `evidence/final/`.
+- Presentación y guion: `presentation/`.
+- Registro de contribuciones: `docs/contributions.md`.
+- Aplicación demostrable: `streamlit run app.py`.
+
 ## Integrantes
 
 - Pablo Daniel Barillas Moreno
@@ -198,8 +236,8 @@ semillas, agregación y comparación cuantitativa con la referencia.
 - National Center for Health Statistics. *NHAMCS 2022 Emergency Department
   Summary Tables*.
 
-La bibliografía técnica completa se encuentra en
-[`report/references.bib`](report/references.bib).
+La bibliografía técnica completa del informe se encuentra en
+[`Output/report/references.bib`](Output/report/references.bib).
 
 ## Licencia
 

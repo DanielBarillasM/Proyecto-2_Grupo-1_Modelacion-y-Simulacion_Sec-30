@@ -51,12 +51,12 @@
 <p class="note">Cada pareja base/candidata usa la misma semilla. Todas las cohortes se drenan: 0 pacientes sin atender.</p></section>
 
 <section class="slide"><h2>Comparación: real, base y candidata</h2>
-<div class="row"><div style="flex:1"><table class="sm"><tr><th>Demanda nominal</th><th>Media</th><th>Mediana</th><th>P90</th><th>&gt;60 min</th></tr>
+<div class="row"><div style="flex:1.15"><table class="sm"><tr><th>Demanda nominal</th><th>Media</th><th>Mediana</th><th>P90</th><th>&gt;60 min</th></tr>
 <tr><td class="r">NHAMCS</td><td>38,2</td><td>16,0</td><td>98,0</td><td>17,7 %</td></tr>
 <tr><td class="b">Base</td><td class="w">74,5</td><td>27,5</td><td>236,7</td><td>27,1 %</td></tr>
 <tr><td class="i">Candidata</td><td class="i">53,6</td><td>15,9</td><td>158,8</td><td>22,5 %</td></tr></table>
 <p class="mut" style="margin-top:20px">Minutos. MAE: base 62,2 · candidata 25,5. El modelo sobreestima; la cola larga se reproduce peor.</p></div>
-<div class="fig" style="flex:1;height:640px"><img src="assets/validation_comparison.svg" alt="Referencia real, simulación base y candidata"></div></div>
+<div class="fig" style="flex:.85;height:640px"><img src="assets/validation_comparison.svg" alt="Referencia real, simulación base y candidata"></div></div>
 <p class="note">Acercarse a NHAMCS no valida la mejora: la candidata no se ajustó a esa referencia. La mejora es simulada, no observada.</p></section>
 
 <section class="slide"><h2>Mejora con incertidumbre y sensibilidad</h2>
@@ -73,7 +73,7 @@
 <li><b>Siguiente paso:</b> calibrar el servicio con datos locales antes de cualquier decisión</li></ul></section>
 
 <section class="slide"><h2>Respaldo: comandos, pruebas y definiciones</h2>
-<ul><li><code>python -m pip install -e ".[dev]"</code> · <code>pytest</code> (56 pruebas)</li><li><code>python scripts/generate_evidence.py --smoke</code> y <code>python scripts/generate_evidence.py</code></li><li><code>streamlit run app.py</code></li>
+<ul><li><code>python -m pip install -e ".[dev]"</code> · <code>pytest</code> (64 aprobadas, 1 omitida)</li><li><code>python scripts/generate_evidence.py --smoke</code> y <code>python scripts/generate_evidence.py</code></li><li><code>streamlit run app.py</code></li>
 <li>Evidencia: <code>evidence/final/</code> (runs, summary, paired_summary, manifest)</li><li>Espera = hasta que un equipo inicia la atención (min) · IC 95 % normal sobre 30 réplicas</li></ul></section>
 
 <div class="nav" id="nav"></div></div>

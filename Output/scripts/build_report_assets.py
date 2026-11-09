@@ -1,18 +1,18 @@
 """Genera las tablas, macros y figuras del informe a partir de ``evidence/final/``.
 
 Regla editorial del proyecto: ninguna cifra del informe se copia a mano.
-Todo número que aparece en ``report/`` proviene de este script, que solo lee
+Todo número que aparece en ``Output/report/`` proviene de este script, que solo lee
 los CSV/JSON congelados de ``evidence/final/``.
 
 Salidas (todas relativas a la raíz del repositorio):
 
-- ``report/generated/macros.tex``      macros ``\\newcommand`` con cifras clave
-- ``report/generated/tab_*.tex``       tablas listas para ``\\input``
-- ``report/figures/*.pdf``             figuras SVG de la evidencia convertidas a PDF
+- ``Output/report/generated/macros.tex`` macros ``\\newcommand`` con cifras clave
+- ``Output/report/generated/tab_*.tex``  tablas listas para ``\\input``
+- ``Output/report/figures/*.pdf``        figuras SVG de la evidencia convertidas a PDF
 
 Uso::
 
-    python scripts/build_report_assets.py
+    python Output/scripts/build_report_assets.py
 """
 
 from __future__ import annotations
@@ -23,12 +23,12 @@ from pathlib import Path
 
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "src"))
 PROCESSED = ROOT / "data" / "processed"
 EVIDENCE = ROOT / "evidence" / "final"
-GENERATED = ROOT / "report" / "generated"
-FIGURES = ROOT / "report" / "figures"
+GENERATED = ROOT / "Output" / "report" / "generated"
+FIGURES = ROOT / "Output" / "report" / "figures"
 
 DEMAND_LABEL = {0.8: "Bajo (0.80)", 1.0: "Nominal (1.00)", 1.2: "Alto (1.20)"}
 DEMAND_KEY = {0.8: "Low", 1.0: "Nom", 1.2: "High"}
@@ -371,7 +371,7 @@ def write_macro_lines(pairs: list[tuple[str, str]]) -> None:
 
 # ------------------------------------------------------------------ macros
 def macros(d: dict) -> None:
-    lines = ["% Generado por scripts/build_report_assets.py. No editar a mano."]
+    lines = ["% Generado por Output/scripts/build_report_assets.py. No editar a mano."]
 
     def add(name: str, value: str) -> None:
         lines.append(rf"\newcommand{{\{name}}}{{{value}}}")
@@ -463,9 +463,21 @@ def macros(d: dict) -> None:
 def figures() -> None:
     try:
         import cairosvg
-    except ImportError:  # pragma: no cover - depende del entorno
-        print("AVISO: cairosvg no está instalado; no se convirtieron las figuras SVG a PDF.")
-        print("       Instale con: python -m pip install cairosvg")
+    except (ImportError, OSError) as exc:  # pragma: no cover - depende del entorno
+        missing = [
+            svg.stem
+            for svg in sorted((EVIDENCE / "figures").glob("*.svg"))
+            if not (FIGURES / f"{svg.stem}.pdf").exists()
+        ]
+        if missing:
+            raise RuntimeError(
+                "No se pudo cargar CairoSVG/Cairo y faltan figuras PDF: "
+                + ", ".join(missing)
+            ) from exc
+        print(
+            "AVISO: CairoSVG/Cairo no está disponible; se conservan las "
+            "figuras PDF versionadas."
+        )
         return
     FIGURES.mkdir(parents=True, exist_ok=True)
     for svg in sorted((EVIDENCE / "figures").glob("*.svg")):

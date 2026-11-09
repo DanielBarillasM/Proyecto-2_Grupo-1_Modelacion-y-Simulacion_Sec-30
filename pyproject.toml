@@ -18,6 +18,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0,<10.0"]
+report = ["cairosvg>=2.7,<3.0"]
 
 [project.scripts]
 ed-sim = "ed_simulation.cli:main"

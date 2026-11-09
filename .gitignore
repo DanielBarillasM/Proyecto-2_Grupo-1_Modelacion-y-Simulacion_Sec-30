@@ -225,8 +225,13 @@ data/raw/*
 evidence/results/*.csv
 evidence/results/*.json
 *.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
 *.out
 *.toc
+*.xdv
 *.synctex.gz
 
 # memsearch (local memory index)

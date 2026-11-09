@@ -34,7 +34,7 @@ repositorio. Se actualizará en cada parte y antes de la entrega.
 | 5 | Diseño experimental y validación | `docs/06_experimental_design.md`, `scripts/generate_evidence.py`, `evidence/final/` | Completo |
 | 6 | Métrica real de referencia con incertidumbre | `data/processed/nhamcs_2022_reference_metrics.csv`, `evidence/final/validation_comparison.csv` | Completo |
 | 6 | Comparación con escenario real | `docs/07_validation_results.md`, sección 5; figura de validación | Completo con alcance explícito |
-| 7 | Resultados y conclusiones | `docs/07_validation_results.md`, `evidence/final/summary.csv`, `evidence/final/figures/` | Evidencia técnica completa; informe/presentación final pendientes |
+| 7 | Resultados y conclusiones | `docs/07_validation_results.md`, `evidence/final/summary.csv`, `evidence/final/figures/`, `Output/report/main.pdf`, `presentation/` | Completo |
 
 ## Criterios de aceptación de la Parte 1
 
