@@ -1,0 +1,24 @@
+[theme]
+primaryColor = "#0F766E"
+backgroundColor = "#F7FAF9"
+secondaryBackgroundColor = "#E9F3F1"
+textColor = "#17332F"
+linkColor = "#0B5F59"
+borderColor = "#C9DAD6"
+baseRadius = "0.6rem"
+buttonRadius = "0.5rem"
+font = "sans-serif"
+headingFont = "sans-serif"
+codeFont = "monospace"
+
+[theme.sidebar]
+backgroundColor = "#EEF6F4"
+secondaryBackgroundColor = "#DDECE8"
+textColor = "#17332F"
+
+[client]
+showErrorDetails = "none"
+toolbarMode = "minimal"
+
+[runner]
+fastReruns = true
