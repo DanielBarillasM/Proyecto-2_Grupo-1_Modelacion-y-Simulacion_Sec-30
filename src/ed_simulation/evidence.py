@@ -9,6 +9,7 @@ import platform
 from dataclasses import asdict
 from datetime import datetime, timezone
 from html import escape
+from math import ceil
 from pathlib import Path
 from typing import Any, Sequence
 
@@ -349,7 +350,8 @@ def _paired_figure(paired: pd.DataFrame) -> str:
     data = paired[paired["metric"] == "mean_wait_minutes"].copy()
     values = data["improvement_base_minus_candidate"].astype(float)
     bound = max(abs(float(values.min())), abs(float(values.max())), 1.0)
-    lower, upper = -bound * 1.1, bound * 1.1
+    bound = float(ceil((bound * 1.1) / 25.0) * 25.0)
+    lower, upper = -bound, bound
     width, height = 960, 560
     left, top, chart_w, chart_h = 90, 100, 810, 350
     elements = _svg_header(
@@ -358,6 +360,14 @@ def _paired_figure(paired: pd.DataFrame) -> str:
         "Diferencias pareadas de espera media",
         "Cada punto comparte semilla entre base y candidata; positivo favorece la candidata",
     )
+    for tick in np.linspace(lower, upper, 5):
+        tick_y = top + chart_h * (upper - float(tick)) / (upper - lower)
+        elements.append(
+            f'<line x1="{left}" y1="{tick_y:.1f}" x2="{left+chart_w}" y2="{tick_y:.1f}" stroke="#E4E7EC"/>'
+        )
+        elements.append(
+            f'<text x="{left-12}" y="{tick_y+4:.1f}" text-anchor="end" class="axis">{tick:.0f}</text>'
+        )
     zero_y = top + chart_h * upper / (upper - lower)
     elements.append(
         f'<line x1="{left}" y1="{zero_y:.1f}" x2="{left+chart_w}" y2="{zero_y:.1f}" stroke="#667085" stroke-dasharray="6 5"/>'
