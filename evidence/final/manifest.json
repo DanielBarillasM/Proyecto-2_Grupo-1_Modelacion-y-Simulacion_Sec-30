@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "experiment_id": "nhamcs_2022_staffing_v1",
+  "generated_at_utc": "2026-11-09T00:31:02.065915+00:00",
+  "git_commit_of_generator": "8c7685adc9ec6967ae984344a78f59cf81ab3d8a",
+  "python": "3.13.17",
+  "dependencies": {
+    "numpy": "2.5.4",
+    "pandas": "2.3.3",
+    "simpy": "4.1.2",
+    "streamlit": "1.66.1",
+    "plotly": "6.9.0",
+    "pytest": "9.2.0"
+  },
+  "data": {
+    "dataset": "NHAMCS 2022 Emergency Department Public Use File",
+    "processed_sha256": {
+      "nhamcs_2022_hourly_profile.csv": "020a2cfe57c6f3ea59cf4e9da56e37379f82d5035a44fd65280135eb514e7e18",
+      "nhamcs_2022_triage_profile.csv": "eda3c8a4a77f84b24ad56ece00e9fa68f6181f6d204c4206b4fb46232876a1d0",
+      "nhamcs_2022_reference_volume.csv": "67f1e36832371f53af03718692c7e321f54d8fdf7a0d66881ecb5b1bc276b574",
+      "nhamcs_2022_reference_metrics.csv": "1b55f8704a9dca503bdcc562fa508478d3b6acea906f71a2d61770596d95a9b6",
+      "nhamcs_2022_service_proxy.csv": "5e01c9573673d7ee5c7739ca1aed5be9c0004adec9ff6670527f7447bb88daae",
+      "calibration_metadata.json": "4111296b2e4e031850d7809993e17d3f082d2946da64c829309ffda3db044d9c"
+    },
+    "reference_volume": "median_ed",
+    "source_category": "derived_from_public"
+  },
+  "model": {
+    "warmup_days": 1,
+    "measurement_days": 1,
+    "terminal_policy": "stop arrivals and drain measured cohort until every patient starts service",
+    "utilization_denominator": "effective patient-usable capacity exposure during the measurement window"
+  },
+  "conditions": [
+    {
+      "condition_id": "base_demand_080",
+      "schedule_id": "base",
+      "capacity_schedule": [
+        3,
+        3,
+        4,
+        4,
+        5,
+        4
+      ],
+      "demand_multiplier": 0.8
+    },
+    {
+      "condition_id": "candidate_demand_080",
+      "schedule_id": "candidate",
+      "capacity_schedule": [
+        1,
+        2,
+        5,
+        5,
+        6,
+        4
+      ],
+      "demand_multiplier": 0.8
+    },
+    {
+      "condition_id": "base_demand_100",
+      "schedule_id": "base",
+      "capacity_schedule": [
+        3,
+        3,
+        4,
+        4,
+        5,
+        4
+      ],
+      "demand_multiplier": 1.0
+    },
+    {
+      "condition_id": "candidate_demand_100",
+      "schedule_id": "candidate",
+      "capacity_schedule": [
+        1,
+        2,
+        5,
+        5,
+        6,
+        4
+      ],
+      "demand_multiplier": 1.0
+    },
+    {
+      "condition_id": "base_demand_120",
+      "schedule_id": "base",
+      "capacity_schedule": [
+        3,
+        3,
+        4,
+        4,
+        5,
+        4
+      ],
+      "demand_multiplier": 1.2
+    },
+    {
+      "condition_id": "candidate_demand_120",
+      "schedule_id": "candidate",
+      "capacity_schedule": [
+        1,
+        2,
+        5,
+        5,
+        6,
+        4
+      ],
+      "demand_multiplier": 1.2
+    }
+  ],
+  "schedules": {
+    "base": [
+      3,
+      3,
+      4,
+      4,
+      5,
+      4
+    ],
+    "candidate": [
+      1,
+      2,
+      5,
+      5,
+      6,
+      4
+    ]
+  },
+  "constraints": {
+    "blocks": 6,
+    "total_capacity_units": 23,
+    "min_capacity": 1,
+    "max_capacity": 8,
+    "max_step_change": 3
+  },
+  "genetic_algorithm": {
+    "population_size": 24,
+    "generations": 20,
+    "crossover_probability": 0.8,
+    "mutation_probability": 0.25,
+    "elitism": 2,
+    "tournament_size": 3,
+    "patience": 8,
+    "evaluation_replicates": 10,
+    "evaluation_seed_start": 10000,
+    "algorithm_seed": 9101,
+    "mean_wait_weight": 0.7,
+    "p90_wait_weight": 0.3,
+    "censored_share_penalty_minutes": 120.0
+  },
+  "seeds": {
+    "algorithm": 9101,
+    "optimization": [
+      10000,
+      10001,
+      10002,
+      10003,
+      10004,
+      10005,
+      10006,
+      10007,
+      10008,
+      10009
+    ],
+    "evaluation": [
+      30000,
+      30001,
+      30002,
+      30003,
+      30004,
+      30005,
+      30006,
+      30007,
+      30008,
+      30009,
+      30010,
+      30011,
+      30012,
+      30013,
+      30014,
+      30015,
+      30016,
+      30017,
+      30018,
+      30019,
+      30020,
+      30021,
+      30022,
+      30023,
+      30024,
+      30025,
+      30026,
+      30027,
+      30028,
+      30029
+    ],
+    "pairing": "base and candidate share each evaluation seed within demand level"
+  },
+  "validation_diagnostics": {
+    "base_mae_minutes": 62.2008811111111,
+    "candidate_mae_minutes": 25.461664444444427,
+    "base_mae_proportion_points": 0.09448176666666663,
+    "candidate_mae_proportion_points": 0.047869633333333356
+  },
+  "claim_scope": "candidate results are synthetic simulations; NHAMCS is a US public reference, not an observed intervention",
+  "commands": [
+    "python scripts/generate_evidence.py",
+    "python scripts/run_experiments.py --candidate evidence/final/frozen_candidate.json"
+  ],
+  "files": [
+    "figures/mean_wait_by_condition.svg",
+    "figures/paired_wait_improvement.svg",
+    "figures/validation_comparison.svg",
+    "frozen_candidate.json",
+    "manifest.json",
+    "paired_differences.csv",
+    "paired_summary.csv",
+    "runs.csv",
+    "summary.csv",
+    "validation_comparison.csv"
+  ]
+}

@@ -9,7 +9,9 @@ horaria de la misma cantidad total de recursos puede reducir el tiempo de espera
 de los pacientes. La propuesta integra un proceso de llegadas dependiente de la
 hora, una cola con prioridad clínica y un algoritmo genético con restricciones.
 
-> Estado actual: implementación de las Partes 1 a 4 de la guía del Proyecto 2.
+> Estado actual: Partes 1 a 6 implementadas con calibración pública, candidata
+> congelada y evidencia experimental reproducible. Los entregables editoriales
+> finales de la Parte 7 siguen pendientes.
 
 ## Pregunta de investigación
 
@@ -41,7 +43,8 @@ específico.
 - Simulación de eventos discretos con Python y SimPy.
 - Llegadas mediante un proceso de Poisson no homogéneo por hora.
 - Cola prioritaria según nivel de triaje.
-- Duraciones de atención empíricas o ajustadas a partir de NHAMCS.
+- Duraciones de atención lognormales estimadas; el proxy NHAMCS se conserva solo
+  como referencia superior y limitación explícita.
 - Algoritmo genético restringido para distribuir recursos por bloque horario.
 - Aplicación interactiva en Streamlit y comandos reproducibles por consola.
 - Pruebas automatizadas, registro de semillas y resultados tabulados.
@@ -71,10 +74,12 @@ específico.
    implementación base y reproducción desde un entorno limpio.
 4. **Implementación de la mejora:** función objetivo, restricciones, integración
    del algoritmo genético y comprobación automática de factibilidad.
-5. **Experimentación y validación:** se implementará en la siguiente etapa.
-6. **Comparación con la vida real:** se completará con los experimentos finales.
-7. **Resultados y conclusiones:** se completará después de ejecutar la batería
-   experimental.
+5. **Experimentación y validación:** seis condiciones, 30 réplicas por condición,
+   semillas pareadas, sensibilidad e incertidumbre.
+6. **Comparación con la vida real:** cuatro métricas comparables contra WAITTIME
+   de NHAMCS 2022, con error y alcance documentados.
+7. **Resultados y conclusiones:** tablas y figuras técnicas listas; informe,
+   presentación y auditoría editorial final todavía pendientes.
 
 ## Documentación disponible
 
@@ -84,6 +89,7 @@ específico.
 - [Implementación de la mejora](docs/04_improvement_implementation.md)
 - [Datos y calibración NHAMCS 2022](docs/05_data_calibration.md)
 - [Diseño experimental y reproducibilidad](docs/06_experimental_design.md)
+- [Resultados y validación](docs/07_validation_results.md)
 - [Trazabilidad de la rúbrica](docs/rubric_traceability.md)
 - [Registro de contribuciones](docs/contributions.md)
 - [Uso de inteligencia artificial](docs/ai_usage.md)

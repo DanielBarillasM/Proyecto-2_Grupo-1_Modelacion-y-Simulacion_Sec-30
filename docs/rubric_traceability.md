@@ -31,10 +31,10 @@ repositorio. Se actualizará en cada parte y antes de la entrega.
 | 5 | Fuente real verificable: fecha, periodo, muestra y condiciones | `docs/05_data_calibration.md`, sección 2; `data/processed/calibration_metadata.json` | Completo |
 | 5 | Obtención y transformación reproducibles | `scripts/download_nhamcs.py`, `scripts/prepare_nhamcs.py`, `tests/test_calibration.py` | Completo |
 | 5 | Parámetros calibrados con datos públicos | `src/ed_simulation/calibration.py` (`load_calibrated_config`), `data/processed/nhamcs_2022_*` | Completo para llegadas y triaje; servicio sigue como supuesto |
-| 5 | Diseño experimental y validación | Etapa posterior | Pendiente |
-| 6 | Métrica real de referencia con incertidumbre | `data/processed/nhamcs_2022_reference_metrics.csv` | Referencia lista; comparación pendiente |
-| 6 | Comparación con escenario real | Etapa posterior | Pendiente |
-| 7 | Resultados y conclusiones | Etapa posterior | Pendiente |
+| 5 | Diseño experimental y validación | `docs/06_experimental_design.md`, `scripts/generate_evidence.py`, `evidence/final/` | Completo |
+| 6 | Métrica real de referencia con incertidumbre | `data/processed/nhamcs_2022_reference_metrics.csv`, `evidence/final/validation_comparison.csv` | Completo |
+| 6 | Comparación con escenario real | `docs/07_validation_results.md`, sección 5; figura de validación | Completo con alcance explícito |
+| 7 | Resultados y conclusiones | `docs/07_validation_results.md`, `evidence/final/summary.csv`, `evidence/final/figures/` | Evidencia técnica completa; informe/presentación final pendientes |
 
 ## Criterios de aceptación de la Parte 1
 
@@ -62,7 +62,8 @@ repositorio. Se actualizará en cada parte y antes de la entrega.
 - [x] Las distribuciones y reglas tienen ecuaciones o pseudocódigo.
 - [x] La simulación acepta parámetros y una semilla explícita.
 - [x] Modelo, interfaz y CLI están separados.
-- [x] La ejecución reporta pacientes censurados en lugar de ocultarlos.
+- [x] La ejecución registra el corte y drena la cohorte para completar esperas
+  sin mezclar el drenaje con utilización o cola de la ventana.
 - [x] Existen pruebas de consistencia y reproducibilidad.
 - [x] El README permite reproducir la instalación y ejecución.
 
@@ -95,3 +96,21 @@ repositorio. Se actualizará en cada parte y antes de la entrega.
 - [x] `WAITTIME` queda reservado para validación y no se usa para ajustar.
 - [ ] Tiempo de servicio calibrado con una fuente identificable: sigue como
   `estimated_assumption` (sección 8.4).
+
+## Criterios de aceptación de experimentación y validación
+
+- [x] La candidata se selecciona con semillas 10000–10009 y se congela antes de
+  las semillas finales 30000–30029.
+- [x] Existen seis condiciones: dos horarios por tres niveles de demanda.
+- [x] Cada condición tiene 30 réplicas; base y candidata comparten semilla en
+  cada pareja.
+- [x] `runs.csv` registra entradas, semillas, métricas, drenaje y runtime.
+- [x] `summary.csv` reporta media, desviación, intervalo del 95 % y cuantiles.
+- [x] `paired_differences.csv` y `paired_summary.csv` cuantifican cambios
+  absolutos, porcentuales y su incertidumbre.
+- [x] La cola física conserva el arrastre del calentamiento y la utilización usa
+  exposición efectiva de capacidad.
+- [x] La referencia, base y candidata usan las mismas cuatro métricas y unidades.
+- [x] Existen sensibilidad, limitaciones y riesgo de extrapolación documentados.
+- [x] Las tres figuras y todas las tablas se regeneran por comando.
+- [x] La mejora se describe como simulada, no observada en un hospital real.

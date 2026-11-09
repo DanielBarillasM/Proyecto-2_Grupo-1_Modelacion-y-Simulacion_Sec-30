@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "candidate_status": "frozen_before_final_evaluation",
+  "claim_scope": "simulated improvement only; not observed real-world improvement",
+  "calibration": {
+    "dataset": "NHAMCS 2022",
+    "reference_volume": "median_ed",
+    "demand_multiplier": 1.0
+  },
+  "baseline_schedule": [
+    3,
+    3,
+    4,
+    4,
+    5,
+    4
+  ],
+  "candidate_schedule": [
+    1,
+    2,
+    5,
+    5,
+    6,
+    4
+  ],
+  "constraints": {
+    "blocks": 6,
+    "total_capacity_units": 23,
+    "min_capacity": 1,
+    "max_capacity": 8,
+    "max_step_change": 3
+  },
+  "optimization_seed_role": "candidate selection only",
+  "optimization_seeds": [
+    10000,
+    10001,
+    10002,
+    10003,
+    10004,
+    10005,
+    10006,
+    10007,
+    10008,
+    10009
+  ],
+  "reserved_evaluation_seed_start": 30000,
+  "optimization": {
+    "evidence_status": "candidate_selected_with_calibrated_inputs",
+    "claim_scope": "candidate selection only; final evaluation uses independent seeds",
+    "baseline": {
+      "schedule": [
+        3,
+        3,
+        4,
+        4,
+        5,
+        4
+      ],
+      "objective": 134.579991,
+      "mean_wait_minutes": 85.43721,
+      "p90_wait_minutes": 249.24648,
+      "censored_share": 0.0,
+      "mean_queue": 5.07063,
+      "resource_utilization": 0.8646643,
+      "feasible": true,
+      "violations": {
+        "length": 0,
+        "bounds": 0,
+        "budget": 0,
+        "smoothness": 0
+      },
+      "replicate_seeds": [
+        10000,
+        10001,
+        10002,
+        10003,
+        10004,
+        10005,
+        10006,
+        10007,
+        10008,
+        10009
+      ]
+    },
+    "best": {
+      "schedule": [
+        1,
+        2,
+        5,
+        5,
+        6,
+        4
+      ],
+      "objective": 76.920385,
+      "mean_wait_minutes": 49.66993,
+      "p90_wait_minutes": 140.50478,
+      "censored_share": 0.0,
+      "mean_queue": 3.33537,
+      "resource_utilization": 0.8399353,
+      "feasible": true,
+      "violations": {
+        "length": 0,
+        "bounds": 0,
+        "budget": 0,
+        "smoothness": 0
+      },
+      "replicate_seeds": [
+        10000,
+        10001,
+        10002,
+        10003,
+        10004,
+        10005,
+        10006,
+        10007,
+        10008,
+        10009
+      ]
+    },
+    "absolute_improvement_minutes": 57.659606,
+    "relative_improvement": 0.42844115,
+    "history": [
+      {
+        "generation": 0,
+        "best_objective": 76.920385,
+        "population_mean_objective": 148.677829,
+        "unique_schedules": 24
+      },
+      {
+        "generation": 1,
+        "best_objective": 76.920385,
+        "population_mean_objective": 103.014685,
+        "unique_schedules": 20
+      },
+      {
+        "generation": 2,
+        "best_objective": 76.920385,
+        "population_mean_objective": 90.148231,
+        "unique_schedules": 14
+      },
+      {
+        "generation": 3,
+        "best_objective": 76.920385,
+        "population_mean_objective": 86.982162,
+        "unique_schedules": 11
+      },
+      {
+        "generation": 4,
+        "best_objective": 76.920385,
+        "population_mean_objective": 78.460455,
+        "unique_schedules": 4
+      },
+      {
+        "generation": 5,
+        "best_objective": 76.920385,
+        "population_mean_objective": 78.537169,
+        "unique_schedules": 5
+      },
+      {
+        "generation": 6,
+        "best_objective": 76.920385,
+        "population_mean_objective": 79.372321,
+        "unique_schedules": 5
+      },
+      {
+        "generation": 7,
+        "best_objective": 76.920385,
+        "population_mean_objective": 78.657811,
+        "unique_schedules": 5
+      },
+      {
+        "generation": 8,
+        "best_objective": 76.920385,
+        "population_mean_objective": 80.316796,
+        "unique_schedules": 7
+      }
+    ],
+    "constraints": {
+      "blocks": 6,
+      "total_capacity_units": 23,
+      "min_capacity": 1,
+      "max_capacity": 8,
+      "max_step_change": 3
+    },
+    "ga_config": {
+      "population_size": 24,
+      "generations": 20,
+      "crossover_probability": 0.8,
+      "mutation_probability": 0.25,
+      "elitism": 2,
+      "tournament_size": 3,
+      "patience": 8,
+      "evaluation_replicates": 10,
+      "evaluation_seed_start": 10000,
+      "algorithm_seed": 9101,
+      "mean_wait_weight": 0.7,
+      "p90_wait_weight": 0.3,
+      "censored_share_penalty_minutes": 120.0
+    },
+    "evaluated_schedules": 61,
+    "stopped_early": true
+  }
+}
