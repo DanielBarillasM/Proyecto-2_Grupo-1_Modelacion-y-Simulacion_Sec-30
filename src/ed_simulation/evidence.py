@@ -23,6 +23,7 @@ from .experiments import (
     factorial_conditions,
     paired_differences,
     run_experiment,
+    summarize_paired_differences,
     summarize_runs,
 )
 from .optimization import (
@@ -172,6 +173,7 @@ def generate_evidence_bundle(
     runs = run_experiment(processed_dir, conditions, evaluation_seeds)
     summary = summarize_runs(runs)
     paired = paired_differences(runs)
+    paired_summary = summarize_paired_differences(paired)
     reference = load_overall_reference(processed_dir)
     comparison = validation_comparison(runs, reference)
 
@@ -180,6 +182,7 @@ def generate_evidence_bundle(
         "runs": output_dir / "runs.csv",
         "summary": output_dir / "summary.csv",
         "paired_differences": output_dir / "paired_differences.csv",
+        "paired_summary": output_dir / "paired_summary.csv",
         "validation_comparison": output_dir / "validation_comparison.csv",
     }
     write_json(paths["frozen_candidate"], frozen_candidate)
@@ -187,6 +190,7 @@ def generate_evidence_bundle(
         ("runs", runs),
         ("summary", summary),
         ("paired_differences", paired),
+        ("paired_summary", paired_summary),
         ("validation_comparison", comparison),
     ):
         frame.to_csv(paths[name], index=False, lineterminator="\n")

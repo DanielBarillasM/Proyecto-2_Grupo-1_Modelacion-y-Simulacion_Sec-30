@@ -281,3 +281,56 @@ def paired_differences(runs: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows).sort_values(
         ["metric", "demand_multiplier", "seed"], kind="stable"
     ).reset_index(drop=True)
+
+
+def summarize_paired_differences(paired: pd.DataFrame) -> pd.DataFrame:
+    """Summarize base-minus-candidate effects and their 95 % intervals."""
+
+    required = {
+        "demand_multiplier",
+        "seed",
+        "metric",
+        "unit",
+        "base_value",
+        "candidate_value",
+        "improvement_base_minus_candidate",
+    }
+    missing = required - set(paired.columns)
+    if missing:
+        raise ValueError(f"faltan columnas pareadas: {sorted(missing)}")
+    z95 = NormalDist().inv_cdf(0.975)
+    rows: list[dict[str, object]] = []
+    for (demand, metric, unit), group in paired.groupby(
+        ["demand_multiplier", "metric", "unit"], sort=True
+    ):
+        effects = group["improvement_base_minus_candidate"].astype(float)
+        n = int(len(effects))
+        mean = float(effects.mean())
+        std = float(effects.std(ddof=1)) if n > 1 else 0.0
+        half_width = z95 * std / np.sqrt(n) if n > 1 else 0.0
+        base_mean = float(group["base_value"].astype(float).mean())
+        candidate_mean = float(group["candidate_value"].astype(float).mean())
+        positive = int((effects > 0).sum())
+        rows.append(
+            {
+                "demand_multiplier": float(demand),
+                "metric": metric,
+                "unit": unit,
+                "n_pairs": n,
+                "base_mean": base_mean,
+                "candidate_mean": candidate_mean,
+                "mean_improvement_base_minus_candidate": mean,
+                "std_improvement": std,
+                "ci95_low": mean - half_width,
+                "ci95_high": mean + half_width,
+                "aggregate_improvement_percent": (
+                    100.0 * mean / base_mean if base_mean != 0 else np.nan
+                ),
+                "positive_pairs": positive,
+                "positive_pair_share": positive / n if n else np.nan,
+                "source_category": "synthetic_simulation",
+            }
+        )
+    return pd.DataFrame(rows).sort_values(
+        ["metric", "demand_multiplier"], kind="stable"
+    ).reset_index(drop=True)

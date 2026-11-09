@@ -10,6 +10,7 @@ from ed_simulation.experiments import (
     factorial_conditions,
     paired_differences,
     run_experiment,
+    summarize_paired_differences,
     summarize_runs,
     validate_runs,
 )
@@ -90,6 +91,19 @@ def test_paired_differences_match_source_runs(small_runs: pd.DataFrame) -> None:
         - source.loc["candidate", "mean_wait_minutes"]
     )
     assert row["improvement_base_minus_candidate"] == pytest.approx(expected)
+
+    paired_summary = summarize_paired_differences(paired)
+    summary_row = paired_summary[
+        (paired_summary["demand_multiplier"] == 1.0)
+        & (paired_summary["metric"] == "mean_wait_minutes")
+    ].iloc[0]
+    assert summary_row["n_pairs"] == 2
+    assert summary_row["mean_improvement_base_minus_candidate"] == pytest.approx(
+        paired[
+            (paired["demand_multiplier"] == 1.0)
+            & (paired["metric"] == "mean_wait_minutes")
+        ]["improvement_base_minus_candidate"].mean()
+    )
 
 
 def test_validation_rejects_unpaired_seed() -> None:
