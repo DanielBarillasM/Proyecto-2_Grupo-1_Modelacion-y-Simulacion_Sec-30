@@ -76,13 +76,19 @@ class SimulationResult:
 
 @dataclass
 class _QueueTracker:
-    """Time-weighted queue statistics for measured patients only."""
+    """Time-weighted statistics for the complete physical waiting queue.
+
+    The level is updated during warm-up, while area and maximum are recorded
+    only inside the measurement window. This preserves the backlog present at
+    the warm-up boundary without treating warm-up time as observed time.
+    """
 
     window_start: float
     window_end: float
     count: int = 0
     maximum: int = 0
     area: float = 0.0
+    count_at_window_start: int | None = None
     last_update: float = field(init=False)
 
     def __post_init__(self) -> None:
@@ -91,17 +97,56 @@ class _QueueTracker:
     def change(self, now: float, delta: int) -> None:
         """Accumulate queue area before changing the patient count."""
 
-        bounded_now = min(max(now, self.window_start), self.window_end)
-        if bounded_now >= self.last_update:
-            self.area += self.count * (bounded_now - self.last_update)
-            self.last_update = bounded_now
+        if now >= self.window_start:
+            if self.count_at_window_start is None:
+                self.count_at_window_start = self.count
+            bounded_now = min(now, self.window_end)
+            if bounded_now >= self.last_update:
+                self.area += self.count * (bounded_now - self.last_update)
+                self.last_update = bounded_now
+            if now <= self.window_end:
+                self.maximum = max(self.maximum, self.count)
         self.count += delta
         if self.count < 0:
             raise RuntimeError("el contador de cola no puede ser negativo")
-        self.maximum = max(self.maximum, self.count)
+        if self.window_start <= now <= self.window_end:
+            self.maximum = max(self.maximum, self.count)
 
     def finish(self) -> None:
         """Close the final interval at the measurement horizon."""
+
+        self.change(self.window_end, 0)
+
+
+@dataclass
+class _CapacityTracker:
+    """Integrate patient-usable capacity over the measurement window."""
+
+    window_start: float
+    window_end: float
+    maximum_capacity: int
+    count: int = field(init=False)
+    area: float = 0.0
+    last_update: float = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.count = self.maximum_capacity
+        self.last_update = self.window_start
+
+    def change(self, now: float, delta: int) -> None:
+        """Record acquisition or release of a capacity-blocker request."""
+
+        if now >= self.window_start:
+            bounded_now = min(now, self.window_end)
+            if bounded_now >= self.last_update:
+                self.area += self.count * (bounded_now - self.last_update)
+                self.last_update = bounded_now
+        self.count += delta
+        if not 0 <= self.count <= self.maximum_capacity:
+            raise RuntimeError("la capacidad efectiva quedó fuera de límites")
+
+    def finish(self) -> None:
+        """Close effective-capacity exposure at the observation horizon."""
 
         self.change(self.window_end, 0)
 
@@ -112,8 +157,11 @@ class _RuntimeState:
 
     measured_records: list[PatientRecord]
     queue: _QueueTracker
+    drain_complete: simpy.Event
     busy_minutes: float = 0.0
     next_patient_id: int = 0
+    measured_waiting: int = 0
+    arrivals_closed: bool = False
 
 
 def simulate(config: SimulationConfig) -> SimulationResult:
@@ -140,14 +188,29 @@ def simulate(config: SimulationConfig) -> SimulationResult:
         window_start=config.warmup_minutes,
         window_end=config.horizon_minutes,
     )
-    state = _RuntimeState(measured_records=[], queue=queue_tracker)
+    capacity_tracker = _CapacityTracker(
+        window_start=config.warmup_minutes,
+        window_end=config.horizon_minutes,
+        maximum_capacity=max_capacity,
+    )
+    state = _RuntimeState(
+        measured_records=[],
+        queue=queue_tracker,
+        drain_complete=environment.event(),
+    )
 
     # A controller is created for each possible team slot. When a slot is not in
     # the schedule, its controller reserves one resource unit with higher priority
     # than patients. If it is occupied, the reduction takes effect after service.
     for slot_index in range(max_capacity):
         environment.process(
-            _capacity_slot_controller(environment, resource, config, slot_index)
+            _capacity_slot_controller(
+                environment,
+                resource,
+                config,
+                capacity_tracker,
+                slot_index,
+            )
         )
 
     environment.process(
@@ -155,23 +218,52 @@ def simulate(config: SimulationConfig) -> SimulationResult:
     )
     environment.run(until=config.horizon_minutes)
     queue_tracker.finish()
+    capacity_tracker.finish()
 
-    return _build_result(config, state)
+    measurement_snapshot = {
+        "started_service": sum(
+            record.service_start_minute is not None
+            for record in state.measured_records
+        ),
+        "completed": sum(
+            record.departure_minute is not None for record in state.measured_records
+        ),
+        "physical_queue": queue_tracker.count,
+    }
+    state.arrivals_closed = True
+    if state.measured_waiting == 0 and not state.drain_complete.triggered:
+        state.drain_complete.succeed()
+    if not state.drain_complete.processed:
+        environment.run(until=state.drain_complete)
+    drain_end_minute = float(environment.now)
+
+    return _build_result(
+        config,
+        state,
+        capacity_tracker,
+        measurement_snapshot,
+        drain_end_minute,
+    )
 
 
 def _capacity_slot_controller(
     environment: simpy.Environment,
     resource: simpy.PriorityResource,
     config: SimulationConfig,
+    capacity_tracker: _CapacityTracker,
     slot_index: int,
 ):
-    """Reserve a team slot during blocks where it is not scheduled."""
+    """Reserve unavailable slots while repeating the daily schedule.
+
+    Controllers continue during the post-horizon drain. No arrivals occur then,
+    but the cohort must keep seeing the same operational schedule rather than an
+    artificial jump to maximum capacity.
+    """
 
     block_minutes = config.block_hours * 60
-    total_blocks = config.simulation_days * len(config.capacity_schedule)
-
-    for block_number in range(total_blocks):
-        block_end = min((block_number + 1) * block_minutes, config.horizon_minutes)
+    block_number = 0
+    while True:
+        block_end = (block_number + 1) * block_minutes
         scheduled_capacity = config.capacity_schedule[
             block_number % len(config.capacity_schedule)
         ]
@@ -179,6 +271,7 @@ def _capacity_slot_controller(
 
         if slot_is_available:
             yield environment.timeout(max(0.0, block_end - environment.now))
+            block_number += 1
             continue
 
         request = resource.request(priority=-1_000)
@@ -187,14 +280,17 @@ def _capacity_slot_controller(
 
         if request in outcome:
             # The blocker acquired a slot. Hold it only until this block ends.
+            capacity_tracker.change(environment.now, -1)
             remaining = max(0.0, block_end - environment.now)
             if remaining:
                 yield environment.timeout(remaining)
             resource.release(request)
+            capacity_tracker.change(environment.now, 1)
         else:
             # Capacity could not decrease before the next block because active
             # patients occupied all slots. Cancel the queued blocker cleanly.
             request.cancel()
+        block_number += 1
 
 
 def _arrival_generator(
@@ -236,7 +332,8 @@ def _arrival_generator(
         )
         if measured:
             state.measured_records.append(record)
-            state.queue.change(environment.now, 1)
+            state.measured_waiting += 1
+        state.queue.change(environment.now, 1)
         environment.process(
             _patient_process(
                 environment,
@@ -262,8 +359,17 @@ def _patient_process(
     with resource.request(priority=record.triage_level) as request:
         yield request
         record.service_start_minute = environment.now
+        state.queue.change(environment.now, -1)
         if measured:
-            state.queue.change(environment.now, -1)
+            state.measured_waiting -= 1
+            if state.measured_waiting < 0:
+                raise RuntimeError("la cohorte medida no puede tener espera negativa")
+            if (
+                state.arrivals_closed
+                and state.measured_waiting == 0
+                and not state.drain_complete.triggered
+            ):
+                state.drain_complete.succeed()
 
         # Count only the overlap with the observation window. The service may
         # begin during warm-up or continue after the simulation horizon.
@@ -295,20 +401,33 @@ def _sample_service_minutes(
 def _build_result(
     config: SimulationConfig,
     state: _RuntimeState,
+    capacity_tracker: _CapacityTracker,
+    measurement_snapshot: dict[str, int],
+    drain_end_minute: float,
 ) -> SimulationResult:
-    """Aggregate patient traces without hiding censored observations."""
+    """Aggregate a fully drained measurement cohort."""
 
     records = state.measured_records
     waits = [record.wait_minutes for record in records if record.wait_minutes is not None]
     completed = sum(record.departure_minute is not None for record in records)
     started = len(waits)
     arrived = len(records)
-    capacity_minutes = (
+    scheduled_capacity_minutes = (
         config.capacity_hours_per_day
         * 60
         * (config.simulation_days - config.warmup_days)
     )
-    utilization = state.busy_minutes / capacity_minutes if capacity_minutes else 0.0
+    effective_capacity_minutes = capacity_tracker.area
+    utilization = (
+        state.busy_minutes / effective_capacity_minutes
+        if effective_capacity_minutes
+        else 0.0
+    )
+    scheduled_utilization = (
+        state.busy_minutes / scheduled_capacity_minutes
+        if scheduled_capacity_minutes
+        else 0.0
+    )
 
     hourly_arrivals = [0] * 24
     for record in records:
@@ -322,6 +441,16 @@ def _build_result(
         "completed": completed,
         "in_system_at_end": arrived - completed,
         "not_started_at_end": arrived - started,
+        "started_service_at_measurement_end": measurement_snapshot["started_service"],
+        "completed_at_measurement_end": measurement_snapshot["completed"],
+        "in_system_at_measurement_end": arrived - measurement_snapshot["completed"],
+        "not_started_at_measurement_end": (
+            arrived - measurement_snapshot["started_service"]
+        ),
+        "physical_queue_at_measurement_end": measurement_snapshot["physical_queue"],
+        "queue_at_measurement_start": state.queue.count_at_window_start or 0,
+        "drain_minutes": round(drain_end_minute - config.horizon_minutes, 4),
+        "drain_complete": int(started == arrived),
         "mean_wait_minutes": round(fmean(waits), 4) if waits else 0.0,
         "median_wait_minutes": round(median(waits), 4) if waits else 0.0,
         "p90_wait_minutes": (
@@ -333,11 +462,19 @@ def _build_result(
         "maximum_queue": state.queue.maximum,
         "mean_queue": round(state.queue.area / config.measurement_minutes, 4),
         "resource_utilization": round(utilization, 6),
+        "scheduled_resource_utilization": round(scheduled_utilization, 6),
+        "busy_team_minutes": round(state.busy_minutes, 4),
+        "effective_capacity_team_minutes": round(effective_capacity_minutes, 4),
+        "scheduled_capacity_team_minutes": round(scheduled_capacity_minutes, 4),
         "capacity_hours_per_day": config.capacity_hours_per_day,
     }
 
     if arrived != completed + metrics["in_system_at_end"]:
         raise RuntimeError("falló la conservación de pacientes")
+    if started != arrived:
+        raise RuntimeError("el drenaje terminó con esperas censuradas")
+    if utilization > 1.0 + 1e-9:
+        raise RuntimeError("la utilización efectiva no puede superar 1")
 
     return SimulationResult(
         config=config,

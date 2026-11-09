@@ -28,10 +28,10 @@ llegada. El horario determina cuántas atenciones pueden ejecutarse simultáneam
 | `triage_probabilities[k]` | Parámetro | proporción | Probabilidad del nivel `k` | Estimada; será calibrada con `IMMEDR` |
 | `service_medians_minutes[k]` | Parámetro | minutos | Mediana de ocupación por triaje | Estimada; será calibrada y declarada como abstracción |
 | `capacity_schedule[b]` | Decisión | equipos | Equipos del bloque `b` | Escenario definido por el usuario |
-| `queue_length(t)` | Estado | pacientes | Pacientes medidos esperando | Resultado interno |
+| `queue_length(t)` | Estado | pacientes | Cola física completa, incluidos arrastres del calentamiento | Resultado interno |
 | `busy_teams(t)` | Estado | equipos | Equipos atendiendo pacientes | Resultado interno |
 | `wait_minutes` | Salida | minutos | Inicio de servicio menos llegada | Calculada por paciente |
-| `resource_utilization` | Salida | proporción | Minutos ocupados/capacidad disponible | Calculada |
+| `resource_utilization` | Salida | proporción | Minutos ocupados/exposición efectiva de capacidad | Calculada |
 
 ## 3. Llegadas
 
@@ -74,17 +74,31 @@ los espacios no disponibles en cada bloque. Cuando la capacidad disminuye, una
 atención en curso termina normalmente; el espacio se bloquea después de liberarse.
 Esta regla evita expulsar pacientes del servicio.
 
-## 7. Calentamiento y censura
+La exposición efectiva integra en el tiempo los espacios que pueden usar los
+pacientes. Si un descenso de horario debe esperar a que termine una atención, ese
+espacio continúa en el denominador hasta que el bloqueo se hace efectivo. Por eso
+`resource_utilization` queda acotada por 1. También se conserva
+`scheduled_resource_utilization` para auditar la diferencia frente al horario
+nominal.
+
+## 7. Calentamiento y drenaje terminal
 
 Por defecto se simulan dos días:
 
 - día 1: calentamiento para evitar una cola inicialmente vacía;
 - día 2: ventana de medición.
 
-Los pacientes del calentamiento afectan la congestión, pero no se contabilizan
-como observaciones. Al terminar el horizonte se informan explícitamente pacientes
-sin iniciar y pacientes dentro del sistema; no se inventan tiempos para registros
-censurados.
+Los pacientes del calentamiento no forman parte de la cohorte reportada, pero sí
+permanecen en la cola física. Al iniciar la medición se reinician únicamente el
+área y el máximo estadístico; el nivel de cola existente se conserva en
+`queue_at_measurement_start`.
+
+Al terminar la ventana se detienen las llegadas y se mantiene el horario cíclico
+hasta que todos los pacientes de la cohorte medida inician servicio. Así las
+esperas son completas y comparables, sin imputar registros censurados. El tiempo
+de drenaje no se incorpora a las integrales de cola, capacidad ni utilización de
+la ventana. `not_started_at_measurement_end` conserva la congestión que existía en
+el corte y `not_started_at_end` debe ser cero tras el drenaje.
 
 ## 8. Pseudocódigo
 
@@ -102,7 +116,8 @@ mientras el reloj sea menor que el horizonte:
     mantener recurso durante la duración del servicio
     liberar recurso y registrar salida
 
-cerrar integrales de cola
+al terminar la ventana, cerrar integrales de cola y capacidad
+detener llegadas y drenar hasta que toda la cohorte medida inicie servicio
 calcular métricas y comprobar conservación de pacientes
 ```
 
@@ -136,3 +151,6 @@ semilla, métricas y trazas para auditoría.
 - No existen tiempos de espera negativos.
 - Se cumple `llegadas = completados + pacientes dentro del sistema`.
 - Sin llegadas, las métricas de espera y cola son cero.
+- La cola del calentamiento se conserva al iniciar la medición.
+- El drenaje termina sin esperas censuradas y no altera la utilización observada.
+- La utilización con capacidad efectiva no supera 1 durante transiciones.
